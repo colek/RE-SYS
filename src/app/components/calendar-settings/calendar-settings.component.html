@@ -1,0 +1,64 @@
+<p>
+  <button type="button" class="btn btn-outline-primary btn-sm" (click)="settingsOpen = !settingsOpen" [attr.aria-expanded]="settingsOpen"
+    aria-controls="settings">
+    * Nastavení
+  </button>
+</p>
+<div id="settings" [ngbCollapse]="!settingsOpen" class="settings text-left">
+  <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
+    <ngb-panel title="Základní týdenní schéma">
+      <ng-template ngbPanelContent>
+        <calendar-commondays></calendar-commondays>
+      </ng-template>
+    </ngb-panel>
+    <ngb-panel title="Výjimky ze schématu">
+      <ng-template ngbPanelContent>
+        <calendar-extradays></calendar-extradays>
+      </ng-template>
+    </ngb-panel>
+    <ngb-panel title="Důvody návštěvy" [disabled]="false">
+      <ng-template ngbPanelContent>
+        <div class="form-group row">
+          <label for="inputVariation" class="col-sm-2 col-form-label">Nová možnost</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" [(ngModel)]="NewReason" name="variationN" id="inputVariation" placeholder="Nová možnost volby typu návštěvy">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="inputDuration" class="col-sm-2 col-form-label">Délka</label>
+          <div class="col-sm-10">
+            <input type="number" min="10" class="form-control" [(ngModel)]="NewReasonDuration" name="durationN" id="inputDuration" placeholder="Délka trvání návštěvy">
+          </div>
+        </div>
+        <button type="button" class="btn btn-outline-primary btn-sm float-xl-right" (click)="addReason()">Přidat</button>
+        <div class="clearfix"></div>
+        <div class="container">
+          <div class="row">
+            <div class="col-8">
+              Název možnosti
+            </div>
+            <div class="col-2">
+              Trvání
+            </div>
+            <div class="col-1">
+              Smaž
+            </div>
+          </div>
+        </div>
+        <div class="container">
+          <div class="row" *ngFor="let reason of Reason">
+            <div class="col-8">
+              {{reason.name}}
+            </div>
+            <div class="col-2">
+              {{reason.orderDuration}}
+            </div>
+            <div class="col-1">
+              <button type="button" (click)="deleteReason(reason)" class="btn btn-outline-danger btn-sm">x</button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </ngb-panel>
+  </ngb-accordion>
+</div>

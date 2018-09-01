@@ -1,176 +1,90 @@
-<ng-template #modalContent let-close="close">
+<div class="d-flex">
+  <div class="p-2 bd-highlight">
+    <div class="calendarComponent">
+      <h1>
+        <small>Rezervační kalendář Mája Oslavany</small>
+      </h1>
+      <div *ngIf="calendarOptions">
+        <ng-fullcalendar #ucCalendar [options]="calendarOptions" (eventClick)="eventClick($event.detail)" (eventDrop)="updateEvent($event.detail)"
+          (eventResize)="updateEvent($event.detail)" (clickButton)="clickButton($event.detail)" (dayClick)="dayClicked($event.detail)"
+          [(eventsModel)]="events"></ng-fullcalendar>
+      </div>
+    </div>
+  </div>
+  <div class="p-2" *ngIf="loggedUser">
+    <calendar-settings></calendar-settings>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<ng-template #content let-c="close" let-d="dismiss">
   <div class="modal-header">
-    <h5 class="modal-title">Event action occurred</h5>
-    <button type="button" class="close" (click)="close()">
+    <h4 class="modal-title">Rezervace Veterina Mája Oslavany</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"> -->
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
   <div class="modal-body">
-    <div>
-      Action:
-      <pre>{{ modalData?.action }}</pre>
+    <form>
+      <div class="form-group row">
+        <label for="inputIdentification" class="col-sm-2 col-form-label">Jméno</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" [(ngModel)]="userEvent.Identification" name="identification" id="inputIdentification"
+            placeholder="Uveďte vaše jméno">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="inputEmail" class="col-sm-2 col-form-label">E-mail</label>
+        <div class="col-sm-10">
+          <input type="email" class="form-control" [(ngModel)]="userEvent.Email" name="email" id="inputEmail" placeholder="Uveďte platný e-mailový kontakt">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="inputEmail" class="col-sm-2 col-form-label">Telefon</label>
+        <div class="col-sm-10">
+          <input type="tel" class="form-control" [(ngModel)]="userEvent.Phone" name="email" id="inputPhone" placeholder="Uveďte platný telefonní kontakt">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="inputReason" class="col-sm-2 col-form-label">Důvod návštěvy</label>
+        <div class="col-sm-10">
+          <!-- <input type="text" class="form-control" [(ngModel)]="userEvent.Reason" name="reason" id="inputReason" placeholder="Uveďte stručně důvod návštěvy"> -->
+
+          <select [(ngModel)]="userEvent.Reason" class="form-control" name="seltype">
+            <option *ngFor="let reason of Reasons" [ngValue]="reason">{{reason.name}}</option>
+          </select>
+        </div>
+      </div>
+    </form>
+    <div class="form-group row">
+      <label class="col-sm-2 col-form-label">Datum</label>
+      <div class="col-sm-10">
+        <!-- <input type="text" class="form-control" value="{{choosedDate}}" id="inputDate" readonly="readonly"> -->
+        <!-- <ngb-datepicker [(ngModel)]="choosedDate" [disabled]="dateDisabled"></ngb-datepicker> -->
+        <div class="input-group">
+          <input class="form-control" placeholder="dd.mm. yyyy" name="dp" [(ngModel)]="userEvent.ChoosedDate" name="choosedDate" ngbDatepicker
+            #d="ngbDatepicker">
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" (click)="d.toggle()" type="button">
+              <img src="img/calendar-icon.svg" style="width: 1.2rem; height: 1rem; cursor: pointer;" />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div>
-      Event:
-      <pre>{{ modalData?.event | json }}</pre>
+    <div class="form-group row">
+      <label class="col-sm-2 col-form-label">Čas</label>
+      <div class="col-sm-10">
+        <!-- <input type="time" class="form-control" id="inputTime" placeholder="Vyberte čas objednání"> -->
+        <ngb-timepicker [(ngModel)]="userEvent.ChoosedTime" name="choosedTime"></ngb-timepicker>
+      </div>
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-secondary" (click)="close()">OK</button>
+    <button type="button" #buttonClose class="btn btn-light" (click)="c('Close click')">Zrušit</button>
+    <button type="button" class="btn btn-secondary" (click)="eventConfim(c)">Potvrdit</button>
+    <!-- <button type="button" #closeModal class="btn btn-secondary" data-dismiss="modal">Close</button> -->
   </div>
 </ng-template>
-
-<div class="row text-center">
-  <div class="col-md-4">
-    <div class="btn-group">
-      <div
-        class="btn btn-primary"
-        mwlCalendarPreviousView
-        [view]="view"
-        [(viewDate)]="viewDate"
-        (viewDateChange)="activeDayIsOpen = false">
-        Previous
-      </div>
-      <div
-        class="btn btn-outline-secondary"
-        mwlCalendarToday
-        [(viewDate)]="viewDate">
-        Today
-      </div>
-      <div
-        class="btn btn-primary"
-        mwlCalendarNextView
-        [view]="view"
-        [(viewDate)]="viewDate"
-        (viewDateChange)="activeDayIsOpen = false">
-        Next
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <h3>{{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}</h3>
-  </div>
-  <div class="col-md-4">
-    <div class="btn-group">
-      <div
-        class="btn btn-primary"
-        (click)="view = 'month'"
-        [class.active]="view === 'month'">
-        Month
-      </div>
-      <div
-        class="btn btn-primary"
-        (click)="view = 'week'"
-        [class.active]="view === 'week'">
-        Week
-      </div>
-      <div
-        class="btn btn-primary"
-        (click)="view = 'day'"
-        [class.active]="view === 'day'">
-        Day
-      </div>
-    </div>
-  </div>
-</div>
-<br>
-<div [ngSwitch]="view">
-  <mwl-calendar-month-view
-    *ngSwitchCase="'month'"
-    [viewDate]="viewDate"
-    [events]="events"
-    [refresh]="refresh"
-    [activeDayIsOpen]="activeDayIsOpen"
-    (dayClicked)="dayClicked($event.day)"
-    (eventClicked)="handleEvent('Clicked', $event.event)"
-    (eventTimesChanged)="eventTimesChanged($event)">
-  </mwl-calendar-month-view>
-  <mwl-calendar-week-view
-    *ngSwitchCase="'week'"
-    [viewDate]="viewDate"
-    [events]="events"
-    [refresh]="refresh"
-    (eventClicked)="handleEvent('Clicked', $event.event)"
-    (eventTimesChanged)="eventTimesChanged($event)">
-  </mwl-calendar-week-view>
-  <mwl-calendar-day-view
-    *ngSwitchCase="'day'"
-    [viewDate]="viewDate"
-    [events]="events"
-    [refresh]="refresh"
-    (eventClicked)="handleEvent('Clicked', $event.event)"
-    (eventTimesChanged)="eventTimesChanged($event)">
-  </mwl-calendar-day-view>
-</div>
-
-<br><br><br>
-
-<h3>
-  Edit events
-  <button
-    class="btn btn-primary pull-right"
-    (click)="addEvent()">
-    Add new
-  </button>
-  <div class="clearfix"></div>
-</h3>
-
-<table class="table table-bordered">
-
-  <thead>
-    <tr>
-      <th>Title</th>
-      <th>Primary color</th>
-      <th>Secondary color</th>
-      <th>Starts at</th>
-      <th>Ends at</th>
-      <th>Remove</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr *ngFor="let event of events; let index = index">
-      <td>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="event.title"
-          (keyup)="refresh.next()">
-      </td>
-      <td>
-        <input
-          type="color"
-          [(ngModel)]="event.color.primary"
-          (change)="refresh.next()">
-      </td>
-      <td>
-        <input
-          type="color"
-          [(ngModel)]="event.color.secondary"
-          (change)="refresh.next()">
-      </td>
-      <td>
-        <mwl-demo-utils-date-time-picker
-          [(ngModel)]="event.start"
-          (ngModelChange)="refresh.next()"
-          placeholder="Not set">
-        </mwl-demo-utils-date-time-picker>
-      </td>
-      <td>
-        <mwl-demo-utils-date-time-picker
-          [(ngModel)]="event.end"
-          (ngModelChange)="refresh.next()"
-          placeholder="Not set">
-        </mwl-demo-utils-date-time-picker>
-      </td>
-      <td>
-        <button
-          class="btn btn-danger"
-          (click)="events.splice(index, 1); refresh.next()">
-          Delete
-        </button>
-      </td>
-    </tr>
-  </tbody>
-
-</table>

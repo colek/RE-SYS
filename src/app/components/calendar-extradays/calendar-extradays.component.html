@@ -1,0 +1,81 @@
+<div class="form-group row">
+  <label for="startDate" class="col-sm-2 col-form-label">Počáteční datum výjimky</label>
+  <div class="col-sm-10">
+    <div class="input-group">
+      <input class="form-control" placeholder="dd.mm. yyyy" name="dp" [(ngModel)]="Day.dateFromDate" name="startDate" ngbDatepicker
+        #dx="ngbDatepicker">
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary" (click)="dx.toggle()" type="button">
+          <img src="img/calendar-icon.svg" style="width: 1.2rem; height: 1rem; cursor: pointer;" />
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="form-group row">
+  <label for="endDate" class="col-sm-2 col-form-label">Koncové datum výjimky</label>
+  <div class="col-sm-10">
+    <div class="input-group">
+      <input class="form-control" placeholder="dd.mm. yyyy" name="dp" [(ngModel)]="Day.dateToDate" name="endDate" ngbDatepicker
+        #d="ngbDatepicker">
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary" (click)="d.toggle()" type="button">
+          <img src="img/calendar-icon.svg" style="width: 1.2rem; height: 1rem; cursor: pointer;" />
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="form-group row">
+  <label for="inputTimeFrom" class="col-sm-2 col-form-label">Začátek intervalu dne</label>
+  <div class="col-sm-10">
+    <input type="time" class="form-control" [(ngModel)]="Day.timeStart" name="cTimeFrom" id="inputTimeFrom" placeholder="Čas od kdy">
+  </div>
+</div>
+<div class="form-group row">
+  <label for="inputTimeTo" class="col-sm-2 col-form-label">Konec intervalu dne</label>
+  <div class="col-sm-10">
+    <input type="time" class="form-control" [(ngModel)]="Day.timeEnd" name="cTimeTo" id="inputTimeTo" placeholder="Čas do kdy">
+  </div>
+</div>
+<button type="button" class="btn btn-outline-primary btn-sm float-xl-right" (click)="saveAltDay()">Přidat nový</button>
+<button type="button" class="btn btn-outline-primary btn-sm float-xl-right" (click)="editAltDay()" *ngIf="this.Day.id != undefined">Uložit</button>
+<div class="clearfix"></div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-6">
+      Datum OD - DO
+    </div>
+    <div class="col-2">
+      Čas Od
+    </div>
+    <div class="col-2">
+      Čas Do
+    </div>
+    <div class="col-1">
+      Edit
+    </div>
+    <div class="col-1">
+      Smaž
+    </div>
+  </div>
+  <div class="row" *ngFor="let DayInList of DayList">
+    <div class="col-6">
+      {{DayInList.dateFromDate.day}}. {{DayInList.dateFromDate.month}}. {{DayInList.dateFromDate.year}} - {{DayInList.dateToDate.day}}.
+      {{DayInList.dateToDate.month}}. {{DayInList.dateToDate.year}}
+    </div>
+    <div class="col-2">
+      {{DayInList.timeStart}}
+    </div>
+    <div class="col-2">
+      {{DayInList.timeEnd}}
+    </div>
+    <div class="col-1">
+      <button type="button" (click)="editDay(DayInList)" class="btn btn-outline-info btn-sm">+</button>
+    </div>
+    <div class="col-1">
+      <button type="button" (click)="deleteDay(DayInList)" class="btn btn-outline-danger btn-sm">x</button>
+    </div>
+  </div>
+</div>

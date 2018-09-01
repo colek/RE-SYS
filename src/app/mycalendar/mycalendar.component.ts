@@ -1,158 +1,337 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  ViewChild,
-  TemplateRef
-} from '@angular/core';
-import {
-  startOfDay,
-  endOfDay,
-  subDays,
-  addDays,
-  endOfMonth,
-  isSameDay,
-  isSameMonth,
-  addHours
-} from 'date-fns';
-import { Subject } from 'rxjs/Subject';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import {
-  CalendarEvent,
-  CalendarEventAction,
-  CalendarEventTimesChangedEvent
-} from 'angular-calendar';
-
-const colors: any = {
-  red: {
-    primary: '#ad2121',
-    secondary: '#FAE3E3'
-  },
-  blue: {
-    primary: '#1e90ff',
-    secondary: '#D1E8FF'
-  },
-  yellow: {
-    primary: '#e3bc08',
-    secondary: '#FDF1BA'
-  }
-};
+import { Component, OnInit, ViewChild, TemplateRef, ElementRef } from '@angular/core';
+import { CalendarComponent } from 'ng-fullcalendar';
+import { Options, EventObject } from 'fullcalendar';
+import { SharingService } from '../services/sharing-service.service';
+import { CalendarService } from '../services/calendar-service.service';
+import { EventService } from '../services/event.service';
+import { ObjectManager, ServerEvent, EventDateTime, MyEvent, UserEvent, EventResponse, User, Reasons, Availability, ChoosedDate, MyBusinessHours } from '../classes/my-classes';
+import { Moment, duration, locale } from 'moment';
+import { NgbModal, ModalDismissReasons, NgbTimeStruct, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { Time } from '@angular/common';
+import { ReasonService } from '../services/reason.service';
+import { AvailabilityService } from '../services/availability.service';
 
 @Component({
   selector: 'my-calendar',
   templateUrl: './mycalendar.component.html',
   styleUrls: ['./mycalendar.component.css']
 })
-export class MycalendarComponent {
-  @ViewChild('modalContent') modalContent: TemplateRef<any>;
+export class MyCalendarComponent implements OnInit {
 
-  view: string = 'month';
 
-  viewDate: Date = new Date();
+  calendarOptions: Options;
+  @ViewChild(CalendarComponent) ucCalendar: CalendarComponent;
+  @ViewChild('content') content: TemplateRef<any>;
+  @ViewChild('buttonClose') buttonClose: ElementRef;
+  events: MyEvent[];
+  calevents: any[];
+  promiseOut: any;
+  userEvent: UserEvent = new UserEvent();
+  dateDisabled: boolean;
+  clickedTime: Moment;
+  loggedUser: User;
+  Reasons: Reasons[];
+  Availabilities: Availability[];
+  AvailabilityExceptions: Availability[];
 
-  modalData: {
-    action: string;
-    event: CalendarEvent;
-  };
 
-  actions: CalendarEventAction[] = [
-    {
-      label: '<i class="fa fa-fw fa-pencil"></i>',
-      onClick: ({ event }: { event: CalendarEvent }): void => {
-        this.handleEvent('Edited', event);
-      }
-    },
-    {
-      label: '<i class="fa fa-fw fa-times"></i>',
-      onClick: ({ event }: { event: CalendarEvent }): void => {
-        this.events = this.events.filter(iEvent => iEvent !== event);
-        this.handleEvent('Deleted', event);
-      }
+
+  constructor(
+    private _sharingService: SharingService,
+    private _reasonService: ReasonService,
+    private _eventService: EventService,
+    private _modalService: NgbModal,
+    private _availabilityService: AvailabilityService) { }
+
+  ngOnInit() {
+    this.loggedUser = new User();
+    // if (this._sharingService.currentCalendar == null) {
+    //   this.getCalendar(1);
+    // }
+    // else {
+    //   this.getEvents();
+    // }
+
+    this.setCalendarConfig();
+
+    // this.userEvent = new UserEvent();
+    // this.userEvent.ChoosedDate = { "day": 12, "month": 5, "year": 2018 };
+    // this.userEvent.ChoosedTime = { "hour": 10, "minute": 45, "second": 0 };
+  }
+
+  ngDoCheck() {
+    //Called every time that the input properties of a component or a directive are checked. Use it to extend change detection by performing a custom check.
+    //Add 'implements DoCheck' to the class.
+    if (this._sharingService.currentCalendar !== this._sharingService.previousCalendar) {
+      this._sharingService.previousCalendar = this._sharingService.currentCalendar;
+
+      this.getEvents();
+      this.getAvailabilities();
     }
-  ];
+  }
 
-  refresh: Subject<any> = new Subject();
+  eventClick(event: any) {
+    this.deleteEvent(event);
+    console.log("eventClick");
+  }
 
-  events: CalendarEvent[] = [
-    {
-      start: subDays(startOfDay(new Date()), 1),
-      end: addDays(new Date(), 1),
-      title: 'A 3 day event',
-      color: colors.red,
-      actions: this.actions
-    },
-    {
-      start: startOfDay(new Date()),
-      title: 'An event with no end date',
-      color: colors.yellow,
-      actions: this.actions
-    },
-    {
-      start: subDays(endOfMonth(new Date()), 3),
-      end: addDays(endOfMonth(new Date()), 3),
-      title: 'A long event that spans 2 months',
-      color: colors.blue
-    },
-    {
-      start: addHours(startOfDay(new Date()), 2),
-      end: new Date(),
-      title: 'A draggable and resizable event',
-      color: colors.yellow,
-      actions: this.actions,
-      resizable: {
-        beforeStart: true,
-        afterEnd: true
+  updateEvent(event: any) {
+    console.log("updateEvent");
+  }
+
+  clickButton(event: any) {
+    let weekStart = event.data.toDate();
+    this._sharingService.setStartAdnEndDate(weekStart);
+
+    // this.setAnotherPossibility();
+
+    this.getEvents();
+
+    console.log("clickButton");
+  }
+
+  dayClicked(day: any) {
+    console.log("dayClicked");
+    this.getReasons();
+    let cDay = day.date.toDate();
+    let zoneOffset = cDay.getTimezoneOffset() / 60;
+    this.userEvent.ChoosedDate = { "day": cDay.getDate(), "month": cDay.getMonth() + 1, "year": cDay.getFullYear() };
+    this.userEvent.ChoosedTime = { "hour": cDay.getHours() + zoneOffset, "minute": cDay.getMinutes(), "second": 0 };
+    this._modalService.open(this.content, { size: "lg" });
+
+    this.clickedTime = day.date;
+    // this.setNewEvent(day.date);
+  }
+
+  selected(day: any) {
+    console.log("selected");
+  }
+
+  getEvents() {
+    this._eventService.getEvents(this._sharingService.currentCalendar.id)
+      .subscribe(
+        data => {
+          let evResponse: EventResponse = data;
+          if (evResponse.inError) {
+            console.error("Cannot get events. " + evResponse.errorDescription);
+          }
+          else {
+            this.events = ObjectManager.SetServerEventsToEvents(evResponse.events);
+            this.ucCalendar.renderEvents(this.events);
+            console.log('Aquired events = ' + this.events.length);
+          }
+        },
+        error => console.error('Error: ' + error),
+        () => console.log('getEvents Completed!')
+      );
+  }
+
+  // getCalendar(id: number) {
+  //   this._calendarService.getCalendar(id).subscribe(
+  //     data => {
+  //       this._sharingService.currentCalendar = data;
+  //       this.getEvents();
+  //     },
+  //     error => console.error('Error: ' + error),
+  //     () => console.log('getCalendar Completed!')
+  //   );
+  // }
+
+  eventConfim(c: any) {
+    let ev: ServerEvent = new ServerEvent();
+
+    ev.description = this.userEvent.Identification + "<br />" + this.userEvent.Email + "<br />" + this.userEvent.Phone + "<br />" + this.userEvent.Reason.name;
+    ev.start = new EventDateTime();
+    ev.start.dateTime = new Date(
+      this.userEvent.ChoosedDate.year,
+      this.userEvent.ChoosedDate.month - 1,
+      this.userEvent.ChoosedDate.day,
+      this.userEvent.ChoosedTime.hour,
+      this.userEvent.ChoosedTime.minute,
+      0);
+    ev.end = new EventDateTime();
+    ev.end.dateTime = new Date(ev.start.dateTime);//.add(15, 'minutes').toDate();
+    ev.end.dateTime.setMinutes(ev.end.dateTime.getMinutes() + this.userEvent.Reason.orderDuration);
+    ev.summary = "Rezervovaný termín";
+
+    this.setNewEvent(ev);
+    c('Close click');
+  }
+
+  setNewEvent(event: ServerEvent) {
+
+    this._eventService.addEvent(event).subscribe(
+      data => {
+        let evResponse: EventResponse = data;
+        if (evResponse.inError) {
+          console.error("Cannot add an event. " + evResponse.errorDescription);
+        }
+        else {
+          this.events = ObjectManager.SetServerEventsToEvents(evResponse.events);
+          this.ucCalendar.renderEvents(this.events);
+          console.log('setNewEvent Aquired events = ' + this.events.length);
+        }
       },
-      draggable: true
-    }
-  ];
+      error => console.error('Error: ' + error),
+      () => console.log('getCalendar Completed!')
+    );
+  }
 
-  activeDayIsOpen: boolean = true;
+  // setNewEventOld(eventStart: Moment){
+  //   let ev:ServerEvent = new ServerEvent();
+  //   let zoneOffset = eventStart.toDate().getTimezoneOffset()/60;
+  //   let momentWithoutOffset = eventStart.add(zoneOffset, "hours");
 
-  constructor(private modal: NgbModal) {}
-  
-  dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
-    if (isSameMonth(date, this.viewDate)) {
-      if (
-        (isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
-        events.length === 0
-      ) {
-        this.activeDayIsOpen = false;
-      } else {
-        this.activeDayIsOpen = true;
-        this.viewDate = date;
+  //   ev.description = "test_" + Date.now.toString();
+  //   ev.start = new EventDateTime();
+  //   ev.start.dateTime = momentWithoutOffset.toDate();
+  //   ev.end = new EventDateTime();
+  //   ev.end.dateTime = momentWithoutOffset.add(15, 'minutes').toDate();
+  //   ev.summary = "Sum";
+
+  //   this._eventService.addEvent(ev).subscribe(
+  //     data => {
+  //       this.events = ObjectManager.SetServerEventsToEvents(data);
+  //       this.ucCalendar.renderEvents(this.events);
+  //       console.log('Aquired events = '+ this.events.length);
+  //     },
+  //     error => console.error('Error: ' + error),
+  //     () => console.log('getCalendar Completed!')
+  //   );
+  // }
+
+
+  getAvailabilities() {
+    this._availabilityService.getAvailabilities(this._sharingService.currentCalendar.id).subscribe(
+      data => {
+        this.Availabilities = ObjectManager.setExtraAvailData(this.Availabilities, data);
+        this.getAltAvailabilities();
+        console.log('getAvailabilities Aquired records = ' + this.Availabilities.length);
+      },
+      error => console.error('Error: ' + error),
+      () => console.log('getAvailabilities Completed!')
+    );
+  }
+
+  getAltAvailabilities() {
+    this._availabilityService.getAltAvailabilities(this._sharingService.currentCalendar.id).subscribe(
+      data => {
+        this.AvailabilityExceptions = ObjectManager.setExtraAvailData(this.AvailabilityExceptions, data);
+        this.setCalendarAvailability();
+        console.log('getAvailabilities Aquired records = ' + this.AvailabilityExceptions.length);
+      },
+      error => console.error('Error: ' + error),
+      () => console.log('getAvailabilities Completed!')
+    );
+  }
+
+  setCalendarAvailability() {
+    // this.calendarOptions.locale = "en";
+    let bhs: MyBusinessHours[];
+    bhs = new Array();
+    this.Availabilities.forEach(element => {
+      let bh = new MyBusinessHours();
+      bh.dow = [element.weekday];
+      bh.start = element.timeStart.toString();
+      bh.end = element.timeEnd.toString();
+
+      bhs.push(bh);
+    })
+
+    this.calendarOptions.businessHours = bhs;
+    // [{
+    //   dow: [1, 2, 3, 4, 5],
+    //   start: "04:00",
+    //   end: "10:00"
+    // }, {
+    //   dow: [1, 2, 3, 4, 5],
+    //   start: "18:00",
+    //   end: "19:00"
+    // },
+    // {
+    //   dow: [6],
+    //   start: "10:00",
+    //   end: "16:00"
+    // }];
+
+
+    this.ucCalendar.fullCalendar("option", this.calendarOptions);
+  }
+
+  setCalendarConfig() {
+
+    this.calendarOptions = {
+      allDaySlot: false,
+      editable: false,
+      height: "auto",
+      contentHeight: "auto",
+      eventLimit: false,
+      defaultView: "agendaWeek",
+      locale: 'cs',
+      header: {
+        left: 'prev,next',
+        center: 'title',
+        right: ''
+      },
+      minTime: duration("07:00:00"),
+      maxTime: duration("19:00:00"),
+      hiddenDays: [0],
+      themeSystem: "standard",
+      selectable: true,
+      selectOverlap: false,
+      nowIndicator: true,
+      slotLabelFormat: "H:mm",
+      columnFormat: "dddd D.M",
+      businessHours: [{
+        dow: [1, 2, 3, 4, 5],
+        start: "08:00",
+        end: "12:00"
+      }, {
+        dow: [1, 2, 3, 4, 5],
+        start: "13:00",
+        end: "18:00"
+      },
+      {
+        dow: [6],
+        start: "15:00",
+        end: "16:00"
       }
-    }
+      ],
+      events: []
+    };
   }
 
-  eventTimesChanged({
-    event,
-    newStart,
-    newEnd
-  }: CalendarEventTimesChangedEvent): void {
-    event.start = newStart;
-    event.end = newEnd;
-    this.handleEvent('Dropped or resized', event);
-    this.refresh.next();
-  }
-
-  handleEvent(action: string, event: CalendarEvent): void {
-    this.modalData = { event, action };
-    this.modal.open(this.modalContent, { size: 'lg' });
-  }
-
-  addEvent(): void {
-    this.events.push({
-      title: 'New event',
-      start: startOfDay(new Date()),
-      end: endOfDay(new Date()),
-      color: colors.red,
-      draggable: true,
-      resizable: {
-        beforeStart: true,
-        afterEnd: true
+  deleteEvent(event: any) {
+    this._eventService.deleteEvent(ObjectManager.SetEventToServerEvent(event).id).subscribe(
+      data => {
+        let evResponse: EventResponse = data;
+        if (evResponse.inError) {
+          console.error("Cannot delete an event. " + evResponse.errorDescription);
+        }
+        else {
+          // console.log(JSON.stringify(evResponse.events));
+          this.events = ObjectManager.SetServerEventsToEvents(evResponse.events);
+          this.ucCalendar.renderEvents(this.events);
+          console.log("Event deleted.");
+        }
+      },
+      error => console.error('Error: ' + error),
+      () => {
+        console.log('deleteEvent Completed!');
       }
-    });
-    this.refresh.next();
+    );
   }
+
+  getReasons() {
+    this._reasonService.getReasons(this._sharingService.currentCalendar.id)
+      .subscribe(
+        data => {
+          this.Reasons = data;
+        },
+        error => console.error('Error: ' + error),
+        () => console.log('getReasons Completed!')
+      );
+  }
+
 
 }
