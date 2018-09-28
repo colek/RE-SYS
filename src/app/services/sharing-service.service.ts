@@ -10,7 +10,7 @@ export class SharingService {
 
   Login: string;
   Pwd: string;
-  public urlAddr = 'http://resys/api';//'http://localhost:59630/api'; //'http://resys.pharaoh.cz/api'; //'/api'; //'https://192.168.2.221:82/api'; 'http://resys/api'
+  public urlAddr = 'http://resys.pharaoh.cz/api';//'http://localhost:59630/api'; //'http://resys.pharaoh.cz/api'; //'/api'; //'https://192.168.2.221:82/api'; 'http://resys/api'
 
   public currentCalendar: Calendar;
   public selectedObject: Object;

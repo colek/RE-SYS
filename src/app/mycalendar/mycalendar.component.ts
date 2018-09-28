@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, TemplateRef, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef, ElementRef, AfterViewInit, Output, EventEmitter } from '@angular/core';
 import { CalendarComponent } from 'ng-fullcalendar';
 import { Options, EventObject } from 'fullcalendar';
 import { SharingService } from '../services/sharing-service.service';
@@ -16,13 +16,14 @@ import { AvailabilityService } from '../services/availability.service';
   templateUrl: './mycalendar.component.html',
   styleUrls: ['./mycalendar.component.css']
 })
-export class MyCalendarComponent implements OnInit {
+export class MyCalendarComponent implements OnInit, AfterViewInit {
 
 
   calendarOptions: Options;
   @ViewChild(CalendarComponent) ucCalendar: CalendarComponent;
   @ViewChild('content') content: TemplateRef<any>;
   @ViewChild('buttonClose') buttonClose: ElementRef;
+  @Output() navLinkWeekClick = new EventEmitter<any>();
   events: MyEvent[];
   calevents: any[];
   promiseOut: any;
@@ -59,6 +60,20 @@ export class MyCalendarComponent implements OnInit {
     // this.userEvent.ChoosedTime = { "hour": 10, "minute": 45, "second": 0 };
   }
 
+  ngAfterViewInit() {
+    let elem = document.getElementsByTagName('ng-fullcalendar');
+    this.ucCalendar.options.navLinkWeekClick = function (weekStart: any, jsEvent: Event) {
+      let detail = { weekStart: weekStart, jsEvent: jsEvent };
+      var widgetEvent = new CustomEvent('navLinkWeekClick', {
+        bubbles: true,
+        detail: detail
+      });
+      for (let i = 0; i < elem.length; i++) {
+        elem[i].dispatchEvent(widgetEvent);
+      }
+    };
+  }
+
   ngDoCheck() {
     //Called every time that the input properties of a component or a directive are checked. Use it to extend change detection by performing a custom check.
     //Add 'implements DoCheck' to the class.
@@ -71,7 +86,7 @@ export class MyCalendarComponent implements OnInit {
   }
 
   eventClick(event: any) {
-    this.deleteEvent(event);
+    // this.deleteEvent(event);
     console.log("eventClick");
   }
 
@@ -92,9 +107,17 @@ export class MyCalendarComponent implements OnInit {
 
   dayClicked(day: any) {
     console.log("dayClicked");
-    this.getReasons();
     let cDay = day.date.toDate();
+
     let zoneOffset = cDay.getTimezoneOffset() / 60;
+    let compareDate = new Date(cDay);
+    compareDate.setHours(cDay.getHours() + zoneOffset);
+    if (!ObjectManager.checkChoosedDate(this.Availabilities, compareDate, 15)) {
+      // TODO zprava ze neni mozne potvrdit zvolene datum
+      return false;
+    }
+
+    this.getReasons();
     this.userEvent.ChoosedDate = { "day": cDay.getDate(), "month": cDay.getMonth() + 1, "year": cDay.getFullYear() };
     this.userEvent.ChoosedTime = { "hour": cDay.getHours() + zoneOffset, "minute": cDay.getMinutes(), "second": 0 };
     this._modalService.open(this.content, { size: "lg" });
@@ -153,6 +176,12 @@ export class MyCalendarComponent implements OnInit {
     ev.end.dateTime = new Date(ev.start.dateTime);//.add(15, 'minutes').toDate();
     ev.end.dateTime.setMinutes(ev.end.dateTime.getMinutes() + this.userEvent.Reason.orderDuration);
     ev.summary = "Rezervovaný termín";
+
+
+    if (!ObjectManager.checkChoosedDate(this.Availabilities, ev.start.dateTime, this.userEvent.Reason.orderDuration)) {
+      // TODO zprava ze neni mozne potvrdit zvolene datum
+      return false;
+    }
 
     this.setNewEvent(ev);
     c('Close click');
@@ -231,7 +260,16 @@ export class MyCalendarComponent implements OnInit {
     bhs = new Array();
     this.Availabilities.forEach(element => {
       let bh = new MyBusinessHours();
-      bh.dow = [element.weekday];
+      let dow: number[] = [element.weekday];
+
+      if (element.weekday == 8) {
+        dow = [1, 2, 3, 4, 5]
+      }
+      else if (element.weekday == 9) {
+        dow = [6, 7]
+      }
+
+      bh.dow = dow;
       bh.start = element.timeStart.toString();
       bh.end = element.timeEnd.toString();
 
@@ -282,21 +320,21 @@ export class MyCalendarComponent implements OnInit {
       nowIndicator: true,
       slotLabelFormat: "H:mm",
       columnFormat: "dddd D.M",
-      businessHours: [{
-        dow: [1, 2, 3, 4, 5],
-        start: "08:00",
-        end: "12:00"
-      }, {
-        dow: [1, 2, 3, 4, 5],
-        start: "13:00",
-        end: "18:00"
-      },
-      {
-        dow: [6],
-        start: "15:00",
-        end: "16:00"
-      }
-      ],
+      // businessHours: [{
+      //   dow: [1, 2, 3, 4, 5],
+      //   start: "08:00",
+      //   end: "12:00"
+      // }, {
+      //   dow: [1, 2, 3, 4, 5],
+      //   start: "13:00",
+      //   end: "18:00"
+      // },
+      // {
+      //   dow: [6],
+      //   start: "15:00",
+      //   end: "16:00"
+      // }
+      // ],
       events: []
     };
   }

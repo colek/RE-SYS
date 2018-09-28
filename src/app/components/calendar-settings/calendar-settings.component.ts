@@ -10,7 +10,7 @@ import { ReasonService } from '../../services/reason.service';
 })
 export class CalendarSettingsComponent implements OnInit {
 
-  public settingsOpen = false;
+  public settingsOpen = true;
   public NewReason: string;
   public NewReasonDuration: number;
   public Reason: Reasons[];

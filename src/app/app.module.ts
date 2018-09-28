@@ -21,6 +21,8 @@ import { CalendarSettingsComponent } from './components/calendar-settings/calend
 import { CalendarCommondaysComponent } from './components/calendar-commondays/calendar-commondays.component';
 import { CalendarExtradaysComponent } from './components/calendar-extradays/calendar-extradays.component';
 import { AvailabilityService } from './services/availability.service';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { AppRoutingModule } from './app-routing.module';
 
 
 @NgModule({
@@ -34,14 +36,16 @@ import { AvailabilityService } from './services/availability.service';
     LoginComponent,
     CalendarSettingsComponent,
     CalendarCommondaysComponent,
-    CalendarExtradaysComponent
+    CalendarExtradaysComponent,
+    PageNotFoundComponent
   ],
   imports: [
     BrowserModule,
     FullCalendarModule,
     FormsModule,
     HttpModule,
-    NgbModule.forRoot()
+    NgbModule.forRoot(),
+    AppRoutingModule
   ],
   providers: [SharingService, CalendarService, EventService, ReasonService, AvailabilityService],
   bootstrap: [AppComponent]

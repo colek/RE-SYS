@@ -6,13 +6,10 @@
       </h1>
       <div *ngIf="calendarOptions">
         <ng-fullcalendar #ucCalendar [options]="calendarOptions" (eventClick)="eventClick($event.detail)" (eventDrop)="updateEvent($event.detail)"
-          (eventResize)="updateEvent($event.detail)" (clickButton)="clickButton($event.detail)" (dayClick)="dayClicked($event.detail)"
-          [(eventsModel)]="events"></ng-fullcalendar>
+          (eventResize)="updateEvent($event.detail)" (navLinkWeekClick)="clickButton($event.detail)" (clickButton)="clickButton()"
+          (navLinkDayClick)="clickButton($event.detail)" (dayClick)="dayClicked($event.detail)" [(eventsModel)]="events"></ng-fullcalendar>
       </div>
     </div>
-  </div>
-  <div class="p-2" *ngIf="loggedUser">
-    <calendar-settings></calendar-settings>
   </div>
 </div>
 
@@ -21,7 +18,7 @@
 <ng-template #content let-c="close" let-d="dismiss">
   <div class="modal-header">
     <h4 class="modal-title">Rezervace Veterina Mája Oslavany</h4>
-    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+    <button type="button" class="close" aria-label="Close" (click)="c('Close click')">
       <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"> -->
       <span aria-hidden="true">&times;</span>
     </button>

@@ -1,6 +1,7 @@
 import { Component, Injectable } from '@angular/core'
 import { EventObject, Timespan, BusinessHours } from 'fullcalendar';
 import { NgbTimeStruct, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { Timestamp } from 'rxjs/operators/timestamp';
 
 // response
 export class EventResponse {
@@ -19,6 +20,9 @@ export class Calendar {
     public fileName: string;
     public serviceAccountEmail: string;
     public name: string;
+
+    public availability: Availability[];
+    public reasons: Reasons[];
 }
 
 export class Availability {
@@ -345,6 +349,48 @@ export class ObjectManager {
     public static getWeekDay(weekDay: number) {
         let xday = WeekDay[weekDay];
         return xday;
+    }
+
+    public static checkChoosedDate(availabilities: Availability[], date: Date, offset: number) {
+
+        // let zoneOffset = date.getTimezoneOffset() / 60;
+        let wDay = date.getDay();
+        let tStart = new Date(date);
+        tStart.setHours(tStart.getHours());
+
+        let endDateTime = new Date(date);//.add(15, 'minutes').toDate();
+        endDateTime.setHours(endDateTime.getHours());
+        endDateTime.setMinutes(endDateTime.getMinutes() + offset);
+        let tEnd = endDateTime;
+
+        let output = false;
+
+        availabilities.forEach(element => {
+            // shoda dne
+            if (element.weekday == wDay
+                || (element.weekday == 8 && wDay >= 1 && wDay <= 5)
+                || (element.weekday == 9 && wDay >= 6 && wDay <= 7)) {
+                let curStart = new Date(date);
+                let splittedTime = element.timeStart.toString().split(":");
+                curStart.setHours(+splittedTime[0]);
+                curStart.setMinutes(+splittedTime[1]);
+                curStart.setSeconds(+splittedTime[2]);
+
+                let curEnd = new Date(date);
+                let splittedEndTime = element.timeEnd.toString().split(":");
+                curEnd.setHours(+splittedEndTime[0]);
+                curEnd.setMinutes(+splittedEndTime[1]);
+                curEnd.setSeconds(+splittedEndTime[2]);
+
+
+                if (curStart <= tStart && curEnd >= tEnd) {
+                    output = true;
+                    return;
+                }
+            }
+        });
+
+        return output;
     }
 
 
