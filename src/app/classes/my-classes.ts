@@ -1,7 +1,7 @@
 import { Component, Injectable } from '@angular/core'
 import { EventObject, Timespan, BusinessHours } from 'fullcalendar';
 import { NgbTimeStruct, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { Timestamp } from 'rxjs/operators/timestamp';
+//import { Timestamp } from 'rxjs/operators/timestamp';
 
 // response
 export class EventResponse {
@@ -259,10 +259,6 @@ export class Reasons {
     public calendar: Calendar;
 }
 
-
-export interface IService {
-    servicePrefix: string;
-}
 
 export class SelectObj {
     public name: string;

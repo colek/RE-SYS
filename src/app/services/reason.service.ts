@@ -1,45 +1,25 @@
 import { Injectable } from '@angular/core';
 
-import { Http, Response } from '@angular/http';
-import { IService, Reasons } from '../classes/my-classes';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Reasons } from '../classes/my-classes';
 import { SharingService } from './sharing-service.service';
 import { map, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class ReasonService {
   servicePrefix: string = 'Reasons';
-  constructor(private _http: Http, private _sharingService: SharingService) { }
+  constructor(private _http: HttpClient, private _sharingService: SharingService) { }
 
 
-  getReasons(calId: number) {
+  getReasons(calId: number):Observable<Reasons[]> {
     let addr = this._sharingService.getAddress(this.servicePrefix +
       '/' + calId);
 
     let headers = this._sharingService.createHeaders();
-    return this._http.get(addr)
-      .pipe(
-        map((res: Response) => res.json()),
-        catchError(this._sharingService.handleError)
-      )
+    return this._http.get<Reasons[]>(addr)
+      .pipe();
   }
-
-  // getReason(objId: string) {
-  //   let addr = this._sharingService.getAddress(this.servicePrefix +
-  //     '/' + objId);
-
-  //   let headers = this._sharingService.createHeaders();
-  //   this._sharingService.currentState.event = new ServerEvent();
-  //   this._sharingService.currentState.event.id = objId;
-  //   return this._http.post(addr, this._sharingService.getCurrentStateJson(null, ActionType.AddEvent), {
-  //     headers: headers
-  //   })
-  //     .pipe(
-  //       map((res: Response) => res.json()),
-  //       catchError(this._sharingService.handleError)
-  //     )
-  // }
-
-  // -----------------
 
   addReason(obj: Reasons) {
     let headers = this._sharingService.createHeaders();
@@ -48,14 +28,8 @@ export class ReasonService {
       jsoned, {
         headers: headers
       })
-      .pipe(
-        map((res: Response) => res.json()),
-        catchError(this._sharingService.handleError)
-      )
+      .pipe( );
   }
-
-
-
 
   editReason(obj: Reasons) {
     let strAddr = this._sharingService.getAddress(this.servicePrefix + '/' + obj.id);
@@ -64,10 +38,7 @@ export class ReasonService {
     return this._http.put(strAddr, jsoned, {
       headers: headers
     })
-      .pipe(
-        map((res: Response) => console.log(JSON.stringify(res))),
-        catchError(this._sharingService.handleError)
-      )
+      .pipe( );
   }
 
   //---------------------DELETE 
@@ -79,9 +50,6 @@ export class ReasonService {
     return this._http.delete(objAddr, {
       headers: headers
     })
-      .pipe(
-        map((res: Response) => console.log(JSON.stringify(res))),
-        catchError(this._sharingService.handleError)
-      )
+      .pipe( );
   }
 }

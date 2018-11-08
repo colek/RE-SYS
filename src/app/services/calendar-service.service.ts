@@ -1,18 +1,19 @@
 import { Injectable } from '@angular/core';
 
-import { Http, Response, Headers } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
-import { IService, Calendar, ServerEvent } from '../classes/my-classes';
+import { Calendar, ServerEvent } from '../classes/my-classes';
 import { SharingService } from './sharing-service.service';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
+import { IService, ICalendar } from '../classes/my-interface';
 // import 'rxjs/add/operator/toPromise';
 
 @Injectable()
 export class CalendarService implements IService {
   servicePrefix: string = 'Calendar';
 
-  constructor(private _http: Http, private _sharingService: SharingService) {
+  constructor(private _http: HttpClient, private _sharingService: SharingService) {
 
   }
   
@@ -43,11 +44,9 @@ export class CalendarService implements IService {
   //     )
   // }
 
-  getCalendar(objId: number) {
+  getCalendar(objId: number):Observable<ICalendar> {
     let addr = this._sharingService.getAddress(this.servicePrefix + "/" + objId);
-    return this._http.get(addr)
-      .map((res: Response) => res.json())
-      .catch(this._sharingService.handleError)
+    return this._http.get<ICalendar>(addr).pipe();
       
   }
 

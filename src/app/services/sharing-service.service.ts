@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { Http, Response, Headers } from '@angular/http';
+import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
 import { Calendar, CurrentState, ActionType } from '../classes/my-classes';
 import { CalendarService } from './calendar-service.service';
 import 'rxjs/add/observable/throw';
+import { catchError } from 'rxjs/operators';
+import { map } from 'rxjs-compat/operator/map';
+import { ICalendar } from '../classes/my-interface';
 
 @Injectable()
 export class SharingService {
@@ -18,7 +21,9 @@ export class SharingService {
   public currentState: CurrentState;
   public previousCalendar: Calendar;
 
-  constructor(private _http: Http) {
+  public ccal: Observable<Calendar>;
+
+  constructor(private _http: HttpClient) {
     this.LoadDefaultCalendar();
   }
 
@@ -32,7 +37,7 @@ export class SharingService {
 
   handleError(error: Response) {
     console.error(error);
-    return Observable.throw(error.json().error || 'chyba');
+    return Observable.throw(error.json().catch || 'chyba');
   }
 
 
@@ -41,22 +46,22 @@ export class SharingService {
     headers.append('Authorization', 'Basic ' +
       btoa(this.Login + ':' + this.Pwd));
   }
-  getHeaders(headers: Headers) {
-    headers.append('Content-type', 'application/json');
+  getHeaders(headers: HttpHeaders) {
+    headers = headers.set('Content-Type', 'application/json; charset=utf-8');
     // headers.append('Content-type', 'application/json');
   }
 
   createNewHeader() {
-    return new Headers();
+    return new HttpHeaders();
   }
 
   getAddress(adr: string) {
     return this.urlAddr + '/' + adr;
   }
 
-  createHeaders() {
-    let headers = this.createNewHeader();
-    this.getHeaders(headers);
+  createHeaders():HttpHeaders {
+    let headers = new HttpHeaders();
+    headers = headers.set('Content-Type', 'application/json; charset=utf-8');
     // this.createAuthorizationHeader(headers);
 
     return headers;
@@ -92,21 +97,41 @@ export class SharingService {
 
   LoadDefaultCalendar() {
     this.getCalendar(1).subscribe(
-      data => {
-        this.currentCalendar = data;
+      data =>{
+          this.currentCalendar = data;
       },
-      error => console.error('Error: ' + error),
+      error => {},
       () => console.log('getCalendar Completed!')
     );
   }
 
-  getCalendar(objId: number) {
-    let addr = this.getAddress("Calendar/" + objId);
-    return this._http.get(addr)
-      .map((res: Response) => res.json())
-      .catch(this.handleError)
+  // getCalendar(objId: number) {
+  //   let addr = this.getAddress("Calendar/" + objId);
+  //   return this._http.get<Calendar>(addr)
+  //   .pipe(
+  //     catchError(err => new function() { this.handleError(err); })
+  //   )
+  // }
 
+  // getCalendar (objId: number) {
+  //   let addr = this.getAddress("Calendar/" + objId);
+  //   return this._http.get<Calendar>(addr)
+  //     .pipe(
+  //       catchError(err => new function() { this.handleError(err); })
+  //     );
+  // }
+
+  getCalendar(objId: number): Observable<ICalendar>  {
+    let addr = this.getAddress("Calendar/" + objId);
+    return this._http.get<ICalendar>(addr).pipe();
   }
+
+  // getHeroes (): Observable<Hero[]> {
+  //   return this.http.get<Hero[]>(this.heroesUrl)
+  //     .pipe(
+        // catchError(this.handleError('getHeroes', []))
+  //     );
+  // }
 
   // getDefaultCalendar(){
   //   this._calendarService.getDefaultCalendar()

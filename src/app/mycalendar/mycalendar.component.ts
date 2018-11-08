@@ -10,6 +10,7 @@ import { NgbModal, ModalDismissReasons, NgbTimeStruct, NgbDateStruct } from '@ng
 import { Time } from '@angular/common';
 import { ReasonService } from '../services/reason.service';
 import { AvailabilityService } from '../services/availability.service';
+import { element } from 'protractor';
 
 @Component({
   selector: 'my-calendar',
@@ -22,6 +23,7 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
   calendarOptions: Options;
   @ViewChild(CalendarComponent) ucCalendar: CalendarComponent;
   @ViewChild('content') content: TemplateRef<any>;
+  @ViewChild('message') message: TemplateRef<any>;
   @ViewChild('buttonClose') buttonClose: ElementRef;
   @Output() navLinkWeekClick = new EventEmitter<any>();
   events: MyEvent[];
@@ -113,7 +115,8 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
     let compareDate = new Date(cDay);
     compareDate.setHours(cDay.getHours() + zoneOffset);
     if (!ObjectManager.checkChoosedDate(this.Availabilities, compareDate, 15)) {
-      // TODO zprava ze neni mozne potvrdit zvolene datum
+      // TODO zprava ze neni mozne potvrdit zvolene datum      
+      this._modalService.open(this.message, { size: "sm" });
       return false;
     }
 
@@ -134,15 +137,14 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
     this._eventService.getEvents(this._sharingService.currentCalendar.id)
       .subscribe(
         data => {
-          let evResponse: EventResponse = data;
-          if (evResponse.inError) {
-            console.error("Cannot get events. " + evResponse.errorDescription);
-          }
-          else {
-            this.events = ObjectManager.SetServerEventsToEvents(evResponse.events);
-            this.ucCalendar.renderEvents(this.events);
-            console.log('Aquired events = ' + this.events.length);
-          }
+            if (data.inError) {
+              console.error("Cannot get events. " + data.errorDescription);
+            }
+            else {
+              this.events = ObjectManager.SetServerEventsToEvents(data.events);
+              this.ucCalendar.renderEvents(this.events);
+              console.log('Aquired events = ' + this.events.length);
+            }
         },
         error => console.error('Error: ' + error),
         () => console.log('getEvents Completed!')
@@ -179,7 +181,7 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
 
 
     if (!ObjectManager.checkChoosedDate(this.Availabilities, ev.start.dateTime, this.userEvent.Reason.orderDuration)) {
-      // TODO zprava ze neni mozne potvrdit zvolene datum
+      this._modalService.open(this.message, { size: "sm" });
       return false;
     }
 
@@ -191,12 +193,12 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
 
     this._eventService.addEvent(event).subscribe(
       data => {
-        let evResponse: EventResponse = data;
-        if (evResponse.inError) {
-          console.error("Cannot add an event. " + evResponse.errorDescription);
+        if (data.inError) {
+          console.error("Cannot add an event. " + data.errorDescription);
+          this._modalService.open(this.message, { size: "sm" });
         }
         else {
-          this.events = ObjectManager.SetServerEventsToEvents(evResponse.events);
+          this.events = ObjectManager.SetServerEventsToEvents(data.events);
           this.ucCalendar.renderEvents(this.events);
           console.log('setNewEvent Aquired events = ' + this.events.length);
         }
@@ -274,7 +276,24 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
       bh.end = element.timeEnd.toString();
 
       bhs.push(bh);
-    })
+    });
+
+    // vyjimky
+    this.AvailabilityExceptions.forEach(element => {
+      let dFrom = new Date(element.dateFrom);
+      let dTo = new Date(element.dateTo);
+
+      // pokud vyjimka patri do zobrazovaneho intervalu, musi se zapocitat
+      if (dFrom < this._sharingService.currentState.dateFrom && dTo < this._sharingService.currentState.dateFrom) {
+
+        let daynum = dFrom.getDay();
+        // prochazim dokud jsem ve viditelnem spektru
+        while (daynum >= 0) {
+          daynum = -1;
+        }
+      }
+
+    });
 
     this.calendarOptions.businessHours = bhs;
     // [{
@@ -342,13 +361,12 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
   deleteEvent(event: any) {
     this._eventService.deleteEvent(ObjectManager.SetEventToServerEvent(event).id).subscribe(
       data => {
-        let evResponse: EventResponse = data;
-        if (evResponse.inError) {
-          console.error("Cannot delete an event. " + evResponse.errorDescription);
+        if (data.inError) {
+          console.error("Cannot delete an event. " + data.errorDescription);
         }
         else {
           // console.log(JSON.stringify(evResponse.events));
-          this.events = ObjectManager.SetServerEventsToEvents(evResponse.events);
+          this.events = ObjectManager.SetServerEventsToEvents(data.events);
           this.ucCalendar.renderEvents(this.events);
           console.log("Event deleted.");
         }

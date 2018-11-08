@@ -16,6 +16,7 @@ import { ReasonService } from './services/reason.service';
 import { MenuComponent } from './components/menu/menu.component';
 import { LoginComponent } from './components/login/login.component';
 import { Http, HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CalendarSettingsComponent } from './components/calendar-settings/calendar-settings.component';
 import { CalendarCommondaysComponent } from './components/calendar-commondays/calendar-commondays.component';
@@ -45,7 +46,8 @@ import { AppRoutingModule } from './app-routing.module';
     FormsModule,
     HttpModule,
     NgbModule.forRoot(),
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule
   ],
   providers: [SharingService, CalendarService, EventService, ReasonService, AvailabilityService],
   bootstrap: [AppComponent]

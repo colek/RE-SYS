@@ -2,12 +2,13 @@
   <div class="p-2 bd-highlight">
     <div class="calendarComponent">
       <h1>
-        <small>Rezervační kalendář Mája Oslavany</small>
+        <small>Rezervační kalendář Veterina Mája Oslavany</small>
       </h1>
+      <p>K rezevraci vyberte ve Vámi zvoleném termínu z menu "Důvod návštěvy". Pro objednání k ostatním úkonům volejte 515 532 868</p>
       <div *ngIf="calendarOptions">
         <ng-fullcalendar #ucCalendar [options]="calendarOptions" (eventClick)="eventClick($event.detail)" (eventDrop)="updateEvent($event.detail)"
-          (eventResize)="updateEvent($event.detail)" (navLinkWeekClick)="clickButton($event.detail)" (clickButton)="clickButton()"
-          (navLinkDayClick)="clickButton($event.detail)" (dayClick)="dayClicked($event.detail)" [(eventsModel)]="events"></ng-fullcalendar>
+          (eventResize)="updateEvent($event.detail)" (navLinkWeekClick)="clickButton()" (dayClick)="dayClicked($event.detail)"
+          [(eventsModel)]="events"></ng-fullcalendar>
       </div>
     </div>
   </div>
@@ -35,7 +36,8 @@
       <div class="form-group row">
         <label for="inputEmail" class="col-sm-2 col-form-label">E-mail</label>
         <div class="col-sm-10">
-          <input type="email" class="form-control" [(ngModel)]="userEvent.Email" name="email" id="inputEmail" placeholder="Uveďte platný e-mailový kontakt">
+          <input type="email" class="form-control" [(ngModel)]="userEvent.Email" name="email" id="inputEmail"
+            placeholder="Uveďte platný e-mailový kontakt">
         </div>
       </div>
       <div class="form-group row">
@@ -61,8 +63,8 @@
         <!-- <input type="text" class="form-control" value="{{choosedDate}}" id="inputDate" readonly="readonly"> -->
         <!-- <ngb-datepicker [(ngModel)]="choosedDate" [disabled]="dateDisabled"></ngb-datepicker> -->
         <div class="input-group">
-          <input class="form-control" placeholder="dd.mm. yyyy" name="dp" [(ngModel)]="userEvent.ChoosedDate" name="choosedDate" ngbDatepicker
-            #d="ngbDatepicker">
+          <input class="form-control" placeholder="dd.mm. yyyy" name="dp" [(ngModel)]="userEvent.ChoosedDate" name="choosedDate"
+            ngbDatepicker #d="ngbDatepicker">
           <div class="input-group-append">
             <button class="btn btn-outline-secondary" (click)="d.toggle()" type="button">
               <img src="img/calendar-icon.svg" style="width: 1.2rem; height: 1rem; cursor: pointer;" />
@@ -82,6 +84,28 @@
   <div class="modal-footer">
     <button type="button" #buttonClose class="btn btn-light" (click)="c('Close click')">Zrušit</button>
     <button type="button" class="btn btn-secondary" (click)="eventConfim(c)">Potvrdit</button>
+    <!-- <button type="button" #closeModal class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+  </div>
+</ng-template>
+
+<!-- Modal -->
+<ng-template #message let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">Chyba zadání</h4>
+    <button type="button" class="close" aria-label="Close" (click)="c('Close click')">
+      <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"> -->
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="alert alert-warning" role="alert">
+        Je nám líto. V uvedeném čase bychom se Vám nemohli plně věnovat.
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="c('Close click')">OK</button>
     <!-- <button type="button" #closeModal class="btn btn-secondary" data-dismiss="modal">Close</button> -->
   </div>
 </ng-template>

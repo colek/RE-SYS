@@ -1,39 +1,31 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
-import { IService, Availability } from '../classes/my-classes';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Availability } from '../classes/my-classes';
 import { SharingService } from './sharing-service.service';
 import { map, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { IAvailability } from '../classes/my-interface';
 
 
 @Injectable()
 export class AvailabilityService {
 
   servicePrefix: string = 'Availabilities';
-  constructor(private _http: Http, private _sharingService: SharingService) { }
+  constructor(private _http: HttpClient, private _sharingService: SharingService) { }
 
 
-  getAvailabilities(calId: number) {
+  getAvailabilities(calId: number):Observable<IAvailability[]> {
     let addr = this._sharingService.getAddress(this.servicePrefix +
       '/' + calId + '/standard');
 
-    let headers = this._sharingService.createHeaders();
-    return this._http.get(addr)
-      .pipe(
-        map((res: Response) => res.json()),
-        catchError(this._sharingService.handleError)
-      )
+    return this._http.get<Availability[]>(addr).pipe( );
   }
 
-  getAltAvailabilities(calId: number) {
+  getAltAvailabilities(calId: number):Observable<IAvailability[]> {
     let addr = this._sharingService.getAddress(this.servicePrefix +
       '/' + calId + '/alt');
 
-    let headers = this._sharingService.createHeaders();
-    return this._http.get(addr)
-      .pipe(
-        map((res: Response) => res.json()),
-        catchError(this._sharingService.handleError)
-      )
+    return this._http.get< Availability[]>(addr).pipe( );
   }
 
   addAvailability(obj: Availability) {
@@ -43,10 +35,7 @@ export class AvailabilityService {
       jsoned, {
         headers: headers
       })
-      .pipe(
-        map((res: Response) => res.json()),
-        catchError(this._sharingService.handleError)
-      )
+      .pipe( );
   }
 
   editAvailability(obj: Availability) {
@@ -55,11 +44,7 @@ export class AvailabilityService {
     let jsoned = JSON.stringify(obj);
     return this._http.put(strAddr, jsoned, {
       headers: headers
-    })
-      .pipe(
-        map((res: Response) => console.log(JSON.stringify(res))),
-        catchError(this._sharingService.handleError)
-      )
+    }).pipe( );
   }
 
   //---------------------DELETE 
@@ -70,11 +55,7 @@ export class AvailabilityService {
 
     return this._http.delete(objAddr, {
       headers: headers
-    })
-      .pipe(
-        map((res: Response) => console.log(JSON.stringify(res))),
-        catchError(this._sharingService.handleError)
-      )
+    }).pipe( );
   }
 
 
