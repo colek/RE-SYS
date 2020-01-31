@@ -2,3 +2,15 @@
     border: 1px solid slateblue;
     border-radius: 8px;
 }
+.progressBck{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 10000;
+    padding-top: 20%;
+    padding-left: 20%;
+    padding-right: 20%;
+    background-color: rgba(43, 107, 226, 0.198);
+}

@@ -39,9 +39,10 @@ export class EventService implements IService {
 
   // -----------------
 
-  addEvent(obj: ServerEvent) {
+  addEvent(obj: ServerEvent, email:string) {
     let headers = this._sharingService.createHeaders();
     this._sharingService.currentState.event = obj;
+    this._sharingService.currentState.UserEmail = email;
     return this._http.post<IEventResponse>(this._sharingService.getAddress(this.servicePrefix + "/" + this._sharingService.currentCalendar.id),
       this._sharingService.getCurrentStateJson(null, ActionType.AddEvent), {
         headers: headers

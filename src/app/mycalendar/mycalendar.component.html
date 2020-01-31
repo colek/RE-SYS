@@ -7,14 +7,16 @@
       <p>K rezevraci vyberte ve Vámi zvoleném termínu z menu "Důvod návštěvy". Pro objednání k ostatním úkonům volejte 515 532 868</p>
       <div *ngIf="calendarOptions">
         <ng-fullcalendar #ucCalendar [options]="calendarOptions" (eventClick)="eventClick($event.detail)" (eventDrop)="updateEvent($event.detail)"
-          (eventResize)="updateEvent($event.detail)" (navLinkWeekClick)="clickButton()" (dayClick)="dayClicked($event.detail)"
+          (eventResize)="updateEvent($event.detail)" (navLinkWeekClick)="clickButton($event.detail)" (dayClick)="dayClicked($event.detail)"
           [(eventsModel)]="events"></ng-fullcalendar>
       </div>
     </div>
   </div>
 </div>
 
-
+<div *ngIf="progressVisible" class="progressBck">
+  <p><ngb-progressbar [value]="progressValue">Načítám data</ngb-progressbar></p>
+</div>
 <!-- Modal -->
 <ng-template #content let-c="close" let-d="dismiss">
   <div class="modal-header">
@@ -101,6 +103,29 @@
     <form>
       <div class="alert alert-warning" role="alert">
         Je nám líto. V uvedeném čase bychom se Vám nemohli plně věnovat.
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="c('Close click')">OK</button>
+    <!-- <button type="button" #closeModal class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+  </div>
+</ng-template>
+
+
+<!-- Modal -->
+<ng-template #confirmation let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">Rezervace potvrzena</h4>
+    <button type="button" class="close" aria-label="Close" (click)="c('Close click')">
+      <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"> -->
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="alert alert-success" role="alert">
+        Vaše rezervace byla potvrzena. Čas rezervace: {{resTime}} Datum: {{resDate}}
       </div>
     </form>
   </div>

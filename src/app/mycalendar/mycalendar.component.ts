@@ -6,7 +6,7 @@ import { CalendarService } from '../services/calendar-service.service';
 import { EventService } from '../services/event.service';
 import { ObjectManager, ServerEvent, EventDateTime, MyEvent, UserEvent, EventResponse, User, Reasons, Availability, ChoosedDate, MyBusinessHours } from '../classes/my-classes';
 import { Moment, duration, locale } from 'moment';
-import { NgbModal, ModalDismissReasons, NgbTimeStruct, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, ModalDismissReasons, NgbTimeStruct, NgbDateStruct, NgbProgressbarConfig } from '@ng-bootstrap/ng-bootstrap';
 import { Time } from '@angular/common';
 import { ReasonService } from '../services/reason.service';
 import { AvailabilityService } from '../services/availability.service';
@@ -19,13 +19,13 @@ import { element } from 'protractor';
 })
 export class MyCalendarComponent implements OnInit, AfterViewInit {
 
-
   calendarOptions: Options;
   @ViewChild(CalendarComponent) ucCalendar: CalendarComponent;
   @ViewChild('content') content: TemplateRef<any>;
   @ViewChild('message') message: TemplateRef<any>;
+  @ViewChild('confirmation') confirmation: TemplateRef<any>;
   @ViewChild('buttonClose') buttonClose: ElementRef;
-  @Output() navLinkWeekClick = new EventEmitter<any>();
+  // @Output() navLinkWeekClick = new EventEmitter<any>();
   events: MyEvent[];
   calevents: any[];
   promiseOut: any;
@@ -36,7 +36,10 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
   Reasons: Reasons[];
   Availabilities: Availability[];
   AvailabilityExceptions: Availability[];
-
+  resDate: string;
+  resTime: string;
+  progressValue: number;
+  progressVisible: boolean;
 
 
   constructor(
@@ -44,7 +47,16 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
     private _reasonService: ReasonService,
     private _eventService: EventService,
     private _modalService: NgbModal,
-    private _availabilityService: AvailabilityService) { }
+    private _availabilityService: AvailabilityService,
+    private config: NgbProgressbarConfig) { 
+      config.animated = true;
+      config.height = "30px";
+      config.max = 1000;
+      config.striped = true;
+      config.type = 'success';
+      this.progressValue = 0;
+      this.progressVisible = true;
+    }
 
   ngOnInit() {
     this.loggedUser = new User();
@@ -81,7 +93,7 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
     //Add 'implements DoCheck' to the class.
     if (this._sharingService.currentCalendar !== this._sharingService.previousCalendar) {
       this._sharingService.previousCalendar = this._sharingService.currentCalendar;
-
+      this.progressValue = 10;
       this.getEvents();
       this.getAvailabilities();
     }
@@ -115,7 +127,6 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
     let compareDate = new Date(cDay);
     compareDate.setHours(cDay.getHours() + zoneOffset);
     if (!ObjectManager.checkChoosedDate(this.Availabilities, compareDate, 15)) {
-      // TODO zprava ze neni mozne potvrdit zvolene datum      
       this._modalService.open(this.message, { size: "sm" });
       return false;
     }
@@ -142,6 +153,7 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
             }
             else {
               this.events = ObjectManager.SetServerEventsToEvents(data.events);
+              this.progressValue += 700;
               this.ucCalendar.renderEvents(this.events);
               console.log('Aquired events = ' + this.events.length);
             }
@@ -185,21 +197,28 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
       return false;
     }
 
-    this.setNewEvent(ev);
+    this.setNewEvent(ev, this.userEvent.Email);
     c('Close click');
   }
 
-  setNewEvent(event: ServerEvent) {
+  setNewEvent(event: ServerEvent, email: string) {
 
-    this._eventService.addEvent(event).subscribe(
+    this._eventService.addEvent(event, email).subscribe(
       data => {
         if (data.inError) {
           console.error("Cannot add an event. " + data.errorDescription);
           this._modalService.open(this.message, { size: "sm" });
         }
         else {
-          this.events = ObjectManager.SetServerEventsToEvents(data.events);
-          this.ucCalendar.renderEvents(this.events);
+          this.events = ObjectManager.SetServerEventsToEvents(data.events);     
+          this.ucCalendar.renderEvents(this.events);    
+          
+          let startTime = new Date(data.currentEvent.start.dateTime);
+
+          this.resTime = startTime.toLocaleTimeString();
+          this.resDate = startTime.toLocaleDateString();
+          this._modalService.open(this.confirmation, { size: "sm" });
+          
           console.log('setNewEvent Aquired events = ' + this.events.length);
         }
       },
@@ -236,6 +255,7 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
     this._availabilityService.getAvailabilities(this._sharingService.currentCalendar.id).subscribe(
       data => {
         this.Availabilities = ObjectManager.setExtraAvailData(this.Availabilities, data);
+        this.progressValue += 200;
         this.getAltAvailabilities();
         console.log('getAvailabilities Aquired records = ' + this.Availabilities.length);
       },
@@ -248,6 +268,7 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
     this._availabilityService.getAltAvailabilities(this._sharingService.currentCalendar.id).subscribe(
       data => {
         this.AvailabilityExceptions = ObjectManager.setExtraAvailData(this.AvailabilityExceptions, data);
+        this.progressValue += 100;
         this.setCalendarAvailability();
         console.log('getAvailabilities Aquired records = ' + this.AvailabilityExceptions.length);
       },
@@ -276,6 +297,11 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
       bh.end = element.timeEnd.toString();
 
       bhs.push(bh);
+      if (this.progressValue >= 100){ 
+        setTimeout(() => {
+          this.progressVisible = false;
+        }, 1500);   
+      }
     });
 
     // vyjimky
@@ -327,7 +353,7 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
       locale: 'cs',
       header: {
         left: 'prev,next',
-        center: 'title',
+        center: ',title,',
         right: ''
       },
       minTime: duration("07:00:00"),
@@ -337,8 +363,10 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
       selectable: true,
       selectOverlap: false,
       nowIndicator: true,
-      slotLabelFormat: "H:mm",
-      columnFormat: "dddd D.M",
+      slotLabelFormat: "HH:mm",
+      timeFormat: "HH:mm",
+      columnFormat: "dddd D. M",
+      titleFormat: "D.MMM.YYYY",
       // businessHours: [{
       //   dow: [1, 2, 3, 4, 5],
       //   start: "08:00",

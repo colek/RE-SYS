@@ -7,7 +7,7 @@ import { ChoosedDate, ActionType, ServerEvents, ServerEvent } from './my-classes
 // response
 export interface IEventResponse {
     events: ServerEvents;
-    event: ServerEvent;
+    currentEvent: ServerEvent;
     inError: boolean;
     errorDescription: string;
 }

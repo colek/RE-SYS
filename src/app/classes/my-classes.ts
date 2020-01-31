@@ -65,6 +65,7 @@ export class CurrentState {
     public dateTo: Date | string;
     public event: ServerEvent;
     public type: ActionType;
+    public UserEmail: string;
 }
 
 export enum ActionType {
