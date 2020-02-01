@@ -26,7 +26,7 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
 import { AppRoutingModule } from './app-routing.module';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { PrimengModule } from './primeng.module';
-import { VetcalComponent } from './components/vetcal/vaetcal.component';
+import { VetcalComponent } from './components/vetcal/vetcal.component';
 
 
 @NgModule({

@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { CalendarSettingsComponent } from './components/calendar-settings/calendar-settings.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 // import { MyCalendarComponent } from './mycalendar/mycalendar.component';
-import { VetcalComponent } from './components/vetcal/vaetcal.component';
+import { VetcalComponent } from './components/vetcal/vetcal.component';
 
 
 const appRoutes: Routes = [
