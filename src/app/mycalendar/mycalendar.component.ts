@@ -1,16 +1,14 @@
 import { Component, OnInit, ViewChild, TemplateRef, ElementRef, AfterViewInit, Output, EventEmitter } from '@angular/core';
-import { CalendarComponent } from 'ng-fullcalendar';
-import { Options, EventObject } from 'fullcalendar';
 import { SharingService } from '../services/sharing-service.service';
 import { CalendarService } from '../services/calendar-service.service';
 import { EventService } from '../services/event.service';
 import { ObjectManager, ServerEvent, EventDateTime, MyEvent, UserEvent, EventResponse, User, Reasons, Availability, ChoosedDate, MyBusinessHours } from '../classes/my-classes';
-import { Moment, duration, locale } from 'moment';
-import { NgbModal, ModalDismissReasons, NgbTimeStruct, NgbDateStruct, NgbProgressbarConfig } from '@ng-bootstrap/ng-bootstrap';
+// import { Moment, duration, locale } from 'moment';
 import { Time } from '@angular/common';
 import { ReasonService } from '../services/reason.service';
 import { AvailabilityService } from '../services/availability.service';
 import { element } from 'protractor';
+import { FullCalendar } from 'primeng/fullcalendar/fullcalendar';
 
 @Component({
   selector: 'my-calendar',
@@ -19,19 +17,16 @@ import { element } from 'protractor';
 })
 export class MyCalendarComponent implements OnInit, AfterViewInit {
 
-  calendarOptions: Options;
-  @ViewChild(CalendarComponent) ucCalendar: CalendarComponent;
-  @ViewChild('content') content: TemplateRef<any>;
-  @ViewChild('message') message: TemplateRef<any>;
-  @ViewChild('confirmation') confirmation: TemplateRef<any>;
-  @ViewChild('buttonClose') buttonClose: ElementRef;
+  @ViewChild('fc', null) fc: FullCalendar;
+
   // @Output() navLinkWeekClick = new EventEmitter<any>();
+  calendarOptions: any;
   events: MyEvent[];
   calevents: any[];
   promiseOut: any;
   userEvent: UserEvent = new UserEvent();
   dateDisabled: boolean;
-  clickedTime: Moment;
+  // clickedTime: Moment;
   loggedUser: User;
   Reasons: Reasons[];
   Availabilities: Availability[];
@@ -46,16 +41,9 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
     private _sharingService: SharingService,
     private _reasonService: ReasonService,
     private _eventService: EventService,
-    private _modalService: NgbModal,
+    // private _modalService: NgbModal,
     private _availabilityService: AvailabilityService,
-    private config: NgbProgressbarConfig) { 
-      config.animated = true;
-      config.height = "30px";
-      config.max = 1000;
-      config.striped = true;
-      config.type = 'success';
-      this.progressValue = 0;
-      this.progressVisible = true;
+    ) { 
     }
 
   ngOnInit() {
@@ -75,17 +63,17 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    let elem = document.getElementsByTagName('ng-fullcalendar');
-    this.ucCalendar.options.navLinkWeekClick = function (weekStart: any, jsEvent: Event) {
-      let detail = { weekStart: weekStart, jsEvent: jsEvent };
-      var widgetEvent = new CustomEvent('navLinkWeekClick', {
-        bubbles: true,
-        detail: detail
-      });
-      for (let i = 0; i < elem.length; i++) {
-        elem[i].dispatchEvent(widgetEvent);
-      }
-    };
+    // let elem = document.getElementsByTagName('ng-fullcalendar');
+    // this.ucCalendar.options.navLinkWeekClick = function (weekStart: any, jsEvent: Event) {
+    //   let detail = { weekStart: weekStart, jsEvent: jsEvent };
+    //   var widgetEvent = new CustomEvent('navLinkWeekClick', {
+    //     bubbles: true,
+    //     detail: detail
+    //   });
+    //   for (let i = 0; i < elem.length; i++) {
+    //     elem[i].dispatchEvent(widgetEvent);
+    //   }
+    // };
   }
 
   ngDoCheck() {
@@ -127,17 +115,18 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
     let compareDate = new Date(cDay);
     compareDate.setHours(cDay.getHours() + zoneOffset);
     if (!ObjectManager.checkChoosedDate(this.Availabilities, compareDate, 15)) {
-      this._modalService.open(this.message, { size: "sm" });
+      // this._modalService.open(this.message, { size: "sm" });
       return false;
     }
 
     this.getReasons();
     this.userEvent.ChoosedDate = { "day": cDay.getDate(), "month": cDay.getMonth() + 1, "year": cDay.getFullYear() };
     this.userEvent.ChoosedTime = { "hour": cDay.getHours() + zoneOffset, "minute": cDay.getMinutes(), "second": 0 };
-    this._modalService.open(this.content, { size: "lg" });
+    // this._modalService.open(this.content, { size: "lg" });
 
-    this.clickedTime = day.date;
-    // this.setNewEvent(day.date);
+    // this.clickedTime = day.date;
+
+    
   }
 
   selected(day: any) {
@@ -154,7 +143,7 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
             else {
               this.events = ObjectManager.SetServerEventsToEvents(data.events);
               this.progressValue += 700;
-              this.ucCalendar.renderEvents(this.events);
+              // this.ucCalendar.renderEvents(this.events);
               console.log('Aquired events = ' + this.events.length);
             }
         },
@@ -193,7 +182,7 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
 
 
     if (!ObjectManager.checkChoosedDate(this.Availabilities, ev.start.dateTime, this.userEvent.Reason.orderDuration)) {
-      this._modalService.open(this.message, { size: "sm" });
+      // this._modalService.open(this.message, { size: "sm" });
       return false;
     }
 
@@ -207,17 +196,17 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
       data => {
         if (data.inError) {
           console.error("Cannot add an event. " + data.errorDescription);
-          this._modalService.open(this.message, { size: "sm" });
+          // this._modalService.open(this.message, { size: "sm" });
         }
         else {
           this.events = ObjectManager.SetServerEventsToEvents(data.events);     
-          this.ucCalendar.renderEvents(this.events);    
+          // this.ucCalendar.renderEvents(this.events);    
           
           let startTime = new Date(data.currentEvent.start.dateTime);
 
           this.resTime = startTime.toLocaleTimeString();
           this.resDate = startTime.toLocaleDateString();
-          this._modalService.open(this.confirmation, { size: "sm" });
+          // this._modalService.open(this.confirmation, { size: "sm" });
           
           console.log('setNewEvent Aquired events = ' + this.events.length);
         }
@@ -321,7 +310,8 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
 
     });
 
-    this.calendarOptions.businessHours = bhs;
+    this.calendarOptions = {...this.calendarOptions, businessHours: bhs};
+    // this.calendarOptions.businessHours = bhs;
     // [{
     //   dow: [1, 2, 3, 4, 5],
     //   start: "04:00",
@@ -338,12 +328,12 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
     // }];
 
 
-    this.ucCalendar.fullCalendar("option", this.calendarOptions);
+    // this.ucCalendar.fullCalendar("option", this.calendarOptions);
   }
 
   setCalendarConfig() {
 
-    this.calendarOptions = {
+    this.calendarOptions = {...this.calendarOptions,
       allDaySlot: false,
       editable: false,
       height: "auto",
@@ -356,8 +346,8 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
         center: ',title,',
         right: ''
       },
-      minTime: duration("07:00:00"),
-      maxTime: duration("19:00:00"),
+      // minTime: duration("07:00:00"),
+      // maxTime: duration("19:00:00"),
       hiddenDays: [0],
       themeSystem: "standard",
       selectable: true,
@@ -382,7 +372,8 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
       //   end: "16:00"
       // }
       // ],
-      events: []
+
+      // events: []
     };
   }
 
@@ -395,7 +386,7 @@ export class MyCalendarComponent implements OnInit, AfterViewInit {
         else {
           // console.log(JSON.stringify(evResponse.events));
           this.events = ObjectManager.SetServerEventsToEvents(data.events);
-          this.ucCalendar.renderEvents(this.events);
+          // this.ucCalendar.renderEvents(this.events);
           console.log("Event deleted.");
         }
       },

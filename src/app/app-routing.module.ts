@@ -2,12 +2,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { CalendarSettingsComponent } from './components/calendar-settings/calendar-settings.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
-import { MyCalendarComponent } from './mycalendar/mycalendar.component';
+// import { MyCalendarComponent } from './mycalendar/mycalendar.component';
+import { VetcalComponent } from './components/vetcal/vaetcal.component';
 
 
 const appRoutes: Routes = [
     { path: 'settings', component: CalendarSettingsComponent },
-    { path: 'mycalendar', component: MyCalendarComponent },
+    { path: 'mycalendar', component: VetcalComponent },
     //   { path: 'newfolder/:parentId', component: NewfolderComponent },
     //   { path: 'newfolder', component: NewfolderComponent },
     //   { path: 'editfolder/:id', component: NewfolderComponent },

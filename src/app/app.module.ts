@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { MyCalendarComponent } from './mycalendar/mycalendar.component';
-import { FullCalendarModule } from 'ng-fullcalendar';
+// import { FullCalendarModule } from 'ng-fullcalendar';
 import { InitUserComponent } from './components/init-user/init-user.component';
 import { InitCalendarComponent } from './components/init-calendar/init-calendar.component';
 import { InitPageComponent } from './components/init-page/init-page.component';
@@ -17,13 +17,16 @@ import { MenuComponent } from './components/menu/menu.component';
 import { LoginComponent } from './components/login/login.component';
 import { Http, HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+// import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CalendarSettingsComponent } from './components/calendar-settings/calendar-settings.component';
 import { CalendarCommondaysComponent } from './components/calendar-commondays/calendar-commondays.component';
 import { CalendarExtradaysComponent } from './components/calendar-extradays/calendar-extradays.component';
 import { AvailabilityService } from './services/availability.service';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { AppRoutingModule } from './app-routing.module';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { PrimengModule } from './primeng.module';
+import { VetcalComponent } from './components/vetcal/vaetcal.component';
 
 
 @NgModule({
@@ -38,14 +41,16 @@ import { AppRoutingModule } from './app-routing.module';
     CalendarSettingsComponent,
     CalendarCommondaysComponent,
     CalendarExtradaysComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    VetcalComponent
   ],
   imports: [
     BrowserModule,
-    FullCalendarModule,
+    BrowserAnimationsModule,
+    // FullCalendarModule,
+    PrimengModule,
     FormsModule,
     HttpModule,
-    NgbModule.forRoot(),
     AppRoutingModule,
     HttpClientModule
   ],

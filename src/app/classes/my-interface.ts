@@ -1,8 +1,6 @@
-import { Component, Injectable } from '@angular/core'
-import { EventObject, Timespan, BusinessHours } from 'fullcalendar';
-import { NgbTimeStruct, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import {  } from 'primeng/calendar/primeng-calendar';
 import { ChoosedDate, ActionType, ServerEvents, ServerEvent } from './my-classes';
-//import { Timestamp } from 'rxjs/operators/timestamp';
+// import { Timestamp } from 'rxjs/operators/timestamp';
 
 // response
 export interface IEventResponse {
@@ -31,8 +29,8 @@ export interface IAvailability {
      calId: number;
      standard: number;
      weekday: number;
-     timeStart: Timespan;
-     timeEnd: Timespan;
+     timeStart: any;//Timespan;
+     timeEnd: any//Timespan;
      dateFrom: string;
      dateTo: string;
 
@@ -79,7 +77,7 @@ export interface IServerEvent {
 export interface IMyEvent {
     start: string | Date;
     [x: string]: any;
-    constraint?: Timespan | BusinessHours;
+    constraint?: any;//Timespan | BusinessHours;
     end?: string | Date;
     id?: any; // String/number
     title: string;
@@ -103,8 +101,8 @@ export interface IUserEvent {
     Email: string;
     Phone: string;
     Reason: IReasons;
-    ChoosedDate: NgbDateStruct;
-    ChoosedTime: NgbTimeStruct;
+    ChoosedDate: any;//NgbDateStruct;
+    ChoosedTime: any;//NgbTimeStruct;
 }
 
 export interface IServerEvents {

@@ -1,6 +1,6 @@
 import { Component, Injectable } from '@angular/core'
-import { EventObject, Timespan, BusinessHours } from 'fullcalendar';
-import { NgbTimeStruct, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+// import { EventObject, Timespan, BusinessHours } from 'fullcalendar';
+// import { NgbTimeStruct, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 //import { Timestamp } from 'rxjs/operators/timestamp';
 
 // response
@@ -30,8 +30,8 @@ export class Availability {
     public calId: number;
     public standard: number;
     public weekday: number;
-    public timeStart: Timespan;
-    public timeEnd: Timespan;
+    public timeStart: any;//Timespan;
+    public timeEnd: any; //Timespan;
     public dateFrom: string;
     public dateTo: string;
 
@@ -99,7 +99,7 @@ export class ServerEvent {
 export class MyEvent {
     start: string | Date;
     [x: string]: any;
-    constraint?: Timespan | BusinessHours;
+    constraint?: any; //Timespan | BusinessHours;
     end?: string | Date;
     id?: any; // String/number
     title: string;
@@ -123,8 +123,8 @@ export class UserEvent {
     Email: string;
     Phone: string;
     Reason: Reasons;
-    ChoosedDate: NgbDateStruct;
-    ChoosedTime: NgbTimeStruct;
+    ChoosedDate: any; //NgbDateStruct;
+    ChoosedTime: any; // NgbTimeStruct;
 }
 
 export class ServerEvents {
