@@ -16,7 +16,7 @@ export class CalendarService implements IService {
   constructor(private _http: HttpClient, private _sharingService: SharingService) {
 
   }
-  
+
 
   // // wrong test with promise async
   // getCalendar<Calendar>(objId: number) {
@@ -32,7 +32,7 @@ export class CalendarService implements IService {
   //       }
   //     )
   //     .catch(this._sharingService.handleError)
-      
+
   // }
 
   // getCalendars() {
@@ -44,10 +44,10 @@ export class CalendarService implements IService {
   //     )
   // }
 
-  getCalendar(objId: number):Observable<ICalendar> {
+  async GetCalendar(objId: number): Promise<ICalendar> {
     let addr = this._sharingService.getAddress(this.servicePrefix + "/" + objId);
-    return this._http.get<ICalendar>(addr).pipe();
-      
+    return this._http.get<ICalendar>(addr).toPromise();
+
   }
 
   // getDefaultCalendar() {
@@ -59,7 +59,7 @@ export class CalendarService implements IService {
   //     )
   // }
   // //-----------------
-  
+
 
   // addCalendar(obj: Calendar) {
   //   let headers = this._sharingService.createHeaders();
@@ -73,7 +73,7 @@ export class CalendarService implements IService {
   //     )
   // }
   // //--------------------
-  
+
 
 
   // editCalendar(obj: Calendar) {

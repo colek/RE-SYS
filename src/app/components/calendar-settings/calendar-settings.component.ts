@@ -22,7 +22,7 @@ export class CalendarSettingsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if (this._sharingService.currentCalendar !== null && this._sharingService.currentCalendar !== undefined) {
+    if (this._sharingService.CurrentCalendar !== null && this._sharingService.CurrentCalendar !== undefined) {
       this.getReasons();
     }
   }
@@ -30,11 +30,11 @@ export class CalendarSettingsComponent implements OnInit {
   ngDoCheck() {
     //Called every time that the input properties of a component or a directive are checked. Use it to extend change detection by performing a custom check.
     //Add 'implements DoCheck' to the class.
-    if (!this.dataLoaded && (this._sharingService.currentCalendar !== this._sharingService.previousCalendar
-      || ((this._sharingService.currentCalendar !== null && this._sharingService.currentCalendar !== undefined)))) {
+    if (!this.dataLoaded && (this._sharingService.CurrentCalendar !== this._sharingService.PreviousCalendar
+      || ((this._sharingService.CurrentCalendar !== null && this._sharingService.CurrentCalendar !== undefined)))) {
 
       this.dataLoaded = true;
-      this._sharingService.previousCalendar = this._sharingService.currentCalendar;
+      this._sharingService.PreviousCalendar = this._sharingService.CurrentCalendar;
 
       this.getReasons();
     }
@@ -43,46 +43,33 @@ export class CalendarSettingsComponent implements OnInit {
   addReason() {
     let addRes: Reasons;
     addRes = new Reasons();
-    // addRes.calendar = this._sharingService.currentCalendar;
-    addRes.calId = this._sharingService.currentCalendar.id
+    // addRes.calendar = this._sharingService.CurrentCalendar;
+    addRes.calId = this._sharingService.CurrentCalendar.id
     addRes.name = this.NewReason;
     addRes.orderDuration = this.NewReasonDuration;
 
 
-    this._reasonService.addReason(addRes)
-      .subscribe(
-        data => {
-          this.getReasons();
-          console.log('Reason added');
-        },
-        error => console.error('Error: ' + error),
-        () => console.log('addReason Completed!')
-      );
+    this._reasonService.AddReason(addRes)
+      .catch((ex) => {
+        console.error("AddReason Error: " + ex);
+        return null;
+      });
   }
 
   getReasons() {
-    this._reasonService.getReasons(this._sharingService.currentCalendar.id)
-      .subscribe(
-        data => {
-          this.Reason = data;
-          this.dataLoaded = true;
-          console.log('Aquired reasons = ' + this.Reason.length);
-        },
-        error => console.error('Error: ' + error),
-        () => console.log('getReasons Completed!')
-      );
+    this._reasonService.GetReasons(this._sharingService.CurrentCalendar.id)
+      .catch((ex) => {
+        console.error("GetReasons Error: " + ex);
+        return null;
+      });
   }
 
   deleteReason(event) {
-    this._reasonService.deleteReason(event.id)
-      .subscribe(
-        data => {
-          this.getReasons();
-          console.log('Reason deleted = ' + event.name);
-        },
-        error => console.error('Error: ' + error),
-        () => console.log('deleteReason Completed!')
-      );
+    this._reasonService.DeleteReason(event.id)
+      .catch((ex) => {
+        console.error("DeleteReason Error: " + ex);
+        return null;
+      });
   }
 
 

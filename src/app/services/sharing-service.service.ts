@@ -15,11 +15,11 @@ export class SharingService {
   Pwd: string;
   public urlAddr = 'http://resys.pharaoh.cz/api';//'http://localhost:59630/api'; //'http://resys.pharaoh.cz/api'; //'/api'; //'https://192.168.2.221:82/api'; 'http://resys/api'
 
-  public currentCalendar: Calendar;
-  public selectedObject: Object;
-  public selectedId: string;
-  public currentState: CurrentState;
-  public previousCalendar: Calendar;
+  public CurrentCalendar: Calendar;
+  public SelectedObject: Object;
+  public SelectedId: string;
+  public CurrentState: CurrentState;
+  public PreviousCalendar: Calendar;
 
   public ccal: Observable<Calendar>;
 
@@ -28,11 +28,11 @@ export class SharingService {
   }
 
   public setObject(obj: Object) {
-    this.selectedObject = obj;
+    this.SelectedObject = obj;
     // this.onChange.trigger(tag);
   }
   getTag<Object>() {
-    return this.selectedObject;
+    return this.SelectedObject;
   }
 
   handleError(error: Response) {
@@ -59,7 +59,7 @@ export class SharingService {
     return this.urlAddr + '/' + adr;
   }
 
-  createHeaders():HttpHeaders {
+  createHeaders(): HttpHeaders {
     let headers = new HttpHeaders();
     headers = headers.set('Content-Type', 'application/json; charset=utf-8');
     // this.createAuthorizationHeader(headers);
@@ -68,17 +68,17 @@ export class SharingService {
   }
 
   getCurrentState(actDate: Date = null, type: ActionType = ActionType.GetEvents) {
-    if (this.currentState == null) {
-      this.currentState = new CurrentState();
-      this.currentState.calendarId = this.currentCalendar.id;
-      if (actDate == null && (this.currentState.dateFrom == null || this.currentState.dateTo == null)) {
+    if (this.CurrentState == null) {
+      this.CurrentState = new CurrentState();
+      this.CurrentState.calendarId = this.CurrentCalendar.id;
+      if (actDate == null && (this.CurrentState.dateFrom == null || this.CurrentState.dateTo == null)) {
         this.setStartAdnEndDate(actDate);
       }
     }
 
-    this.currentState.type = type;
+    this.CurrentState.type = type;
 
-    return this.currentState;
+    return this.CurrentState;
   }
 
   getCurrentStateJson(actDate: Date = null, type: ActionType = ActionType.GetEvents) {
@@ -89,18 +89,18 @@ export class SharingService {
     if (actDate == null) {
       actDate = new Date();
     }
-    this.currentState.dateFrom = new Date(actDate);
-    this.currentState.dateFrom.setDate(actDate.getDate() - 7);
-    this.currentState.dateTo = new Date(actDate);
-    this.currentState.dateTo.setDate(actDate.getDate() + 7);
+    this.CurrentState.dateFrom = new Date(actDate);
+    this.CurrentState.dateFrom.setDate(actDate.getDate() - 7);
+    this.CurrentState.dateTo = new Date(actDate);
+    this.CurrentState.dateTo.setDate(actDate.getDate() + 7);
   }
 
   LoadDefaultCalendar() {
     this.getCalendar(1).subscribe(
-      data =>{
-          this.currentCalendar = data;
+      data => {
+        this.CurrentCalendar = data;
       },
-      error => {},
+      error => { },
       () => console.log('getCalendar Completed!')
     );
   }
@@ -121,7 +121,7 @@ export class SharingService {
   //     );
   // }
 
-  getCalendar(objId: number): Observable<ICalendar>  {
+  getCalendar(objId: number): Observable<ICalendar> {
     let addr = this.getAddress("Calendar/" + objId);
     return this._http.get<ICalendar>(addr).pipe();
   }
@@ -129,7 +129,7 @@ export class SharingService {
   // getHeroes (): Observable<Hero[]> {
   //   return this.http.get<Hero[]>(this.heroesUrl)
   //     .pipe(
-        // catchError(this.handleError('getHeroes', []))
+  // catchError(this.handleError('getHeroes', []))
   //     );
   // }
 

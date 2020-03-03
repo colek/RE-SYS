@@ -19,82 +19,79 @@ export class CalendarCommondaysComponent implements OnInit {
     private _sharingService: SharingService,
     private _availabilityService: AvailabilityService, ) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.Day = new Availability();
-    this.loadWeekdaysType();
+    this.LoadWeekdaysType();
+    await this.LoadSavedDays()
   }
 
 
-  ngDoCheck() {
-    //Called every time that the input properties of a component or a directive are checked. Use it to extend change detection by performing a custom check.
-    //Add 'implements DoCheck' to the class.
-    if (!this.dataLoaded && (this._sharingService.currentCalendar !== this._sharingService.previousCalendar
-      || ((this._sharingService.currentCalendar !== null && this._sharingService.currentCalendar !== undefined)))) {
+  // ngDoCheck() {
+  //   //Called every time that the input properties of a component or a directive are checked. Use it to extend change detection by performing a custom check.
+  //   //Add 'implements DoCheck' to the class.
+  //   if (!this.dataLoaded && (this._sharingService.currentCalendar !== this._sharingService.previousCalendar
+  //     || ((this._sharingService.currentCalendar !== null && this._sharingService.currentCalendar !== undefined)))) {
 
-      this.dataLoaded = true;
-      this._sharingService.previousCalendar = this._sharingService.currentCalendar;
+  //     this.dataLoaded = true;
+  //     this._sharingService.previousCalendar = this._sharingService.currentCalendar;
 
-      this.loadSavedDays();
-    }
-  }
+  //     this.loadSavedDays();
+  //   }
+  // }
 
-  editCommonDay() {
-    this._availabilityService.editAvailability(this.Day).subscribe(
-      data => {
-        this.loadSavedDays();
-        console.log('saveCommonDay Day = ' + this.Day);
-      },
-      error => console.error('Error: ' + error),
-      () => console.log('saveCommonDay Completed!')
-    );
+  async EditCommonDay() {
+    await this._availabilityService.EditAvailability(this.Day)
+      .catch((ex) => {
+        console.error("EditAvailability Error: " + ex);
+        return null;
+      });
+
+    await this.LoadSavedDays();
+
     return;
   }
 
-  saveCommonDay() {
-    this.Day.calId = this._sharingService.currentCalendar.id;
+  async SaveCommonDay() {
+    this.Day.calId = this._sharingService.CurrentCalendar.id;
     this.Day.standard = 1;
     this.Day.id = undefined;
 
-    this._availabilityService.addAvailability(this.Day).subscribe(
-      data => {
-        this.loadSavedDays();
-        console.log('saveCommonDay Day = ' + this.Day);
-      },
-      error => console.error('Error: ' + error),
-      () => console.log('saveCommonDay Completed!')
-    );
+    this._availabilityService.AddAvailability(this.Day)
+      .catch((ex) => {
+        console.error("AddAvailability Error: " + ex);
+        return null;
+      });
+
+    await this.LoadSavedDays();
 
   }
 
-  deleteDay(day) {
-    this._availabilityService.deleteAvailability(day.id)
-      .subscribe(
-        data => {
-          this.loadSavedDays();
-          console.log('Availability deleted = ' + day.id);
-        },
-        error => console.error('Error: ' + error),
-        () => console.log('deleteAvailability Completed!')
-      );
+  async DeleteDay(day) {
+    this._availabilityService.DeleteAvailability(day.id)
+      .catch((ex) => {
+        console.error("DeleteAvailability Error: " + ex);
+        return null;
+      });
+
+    await this.LoadSavedDays();
   }
 
-  editDay(day) {
+  EditDay(day) {
     this.Day = day;
   }
 
-  loadSavedDays() {
-    this._availabilityService.getAvailabilities(this._sharingService.currentCalendar.id).subscribe(
-      data => {
-        this.DayList = ObjectManager.setAvailData(this.DayList, data);
-        this.dataLoaded = true;
-        console.log('loadSavedDays Aquired records = ' + this.DayList.length);
-      },
-      error => console.error('Error: ' + error),
-      () => console.log('loadSavedDays Completed!')
-    );
+  async LoadSavedDays() {
+    let data = await this._availabilityService.GetAvailabilities(this._sharingService.CurrentCalendar.id)
+      .catch((ex) => {
+        console.error("GetAvailabilities Error: " + ex);
+        return null;
+      });
+
+    this.DayList = ObjectManager.setAvailData(this.DayList, data);
+    this.dataLoaded = true;
   }
 
-  loadWeekdaysType() {
+  LoadWeekdaysType() {
     this.weekdaySelect = new Array();
     this.keys().forEach(element => {
       this.weekdaySelect.push(new SelectObj(element, WeekDay[element]));

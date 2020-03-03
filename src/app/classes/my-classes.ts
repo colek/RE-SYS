@@ -54,9 +54,9 @@ export class Availability {
 }
 
 export class MyBusinessHours {
-    public dow: number[];
-    public start: string;
-    public end: string;
+    public daysOfWeek: number[];
+    public startTime: string;
+    public endTime: string;
 }
 
 export class CurrentState {

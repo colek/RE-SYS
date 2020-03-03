@@ -23,6 +23,9 @@ import { TreeModule } from 'primeng/tree';
 import { TabViewModule } from 'primeng/tabview';
 import { PanelModule } from 'primeng/panel';
 import { FullCalendarModule } from 'primeng/fullcalendar';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+
 
 @NgModule({
     exports: [
@@ -48,7 +51,9 @@ import { FullCalendarModule } from 'primeng/fullcalendar';
         // TreeModule,
         // TabViewModule,
         // PanelModule,
-        FullCalendarModule
+        FullCalendarModule,
+        DynamicDialogModule,
+        ProgressSpinnerModule
     ]
 })
 export class PrimeNGModule { }

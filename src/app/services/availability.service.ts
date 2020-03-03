@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Pipe } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Availability } from '../classes/my-classes';
 import { SharingService } from './sharing-service.service';
@@ -14,48 +14,48 @@ export class AvailabilityService {
   constructor(private _http: HttpClient, private _sharingService: SharingService) { }
 
 
-  getAvailabilities(calId: number):Observable<IAvailability[]> {
+  async GetAvailabilities(calId: number): Promise<IAvailability[]> {
     let addr = this._sharingService.getAddress(this.servicePrefix +
       '/' + calId + '/standard');
 
-    return this._http.get<Availability[]>(addr).pipe( );
+    return this._http.get<IAvailability[]>(addr).toPromise();
   }
 
-  getAltAvailabilities(calId: number):Observable<IAvailability[]> {
+  async GetAltAvailabilities(calId: number): Promise<IAvailability[]> {
     let addr = this._sharingService.getAddress(this.servicePrefix +
       '/' + calId + '/alt');
 
-    return this._http.get< Availability[]>(addr).pipe( );
+    return this._http.get<Availability[]>(addr).toPromise();
   }
 
-  addAvailability(obj: Availability) {
+  AddAvailability(obj: Availability): Promise<any> {
     let headers = this._sharingService.createHeaders();
     let jsoned = JSON.stringify(obj);
-    return this._http.post(this._sharingService.getAddress(this.servicePrefix),
+    return this._http.post<any>(this._sharingService.getAddress(this.servicePrefix),
       jsoned, {
-        headers: headers
-      })
-      .pipe( );
+      headers: headers
+    })
+      .toPromise();
   }
 
-  editAvailability(obj: Availability) {
+  EditAvailability(obj: Availability): Promise<any> {
     let strAddr = this._sharingService.getAddress(this.servicePrefix + '/' + obj.id);
     let headers = this._sharingService.createHeaders();
     let jsoned = JSON.stringify(obj);
-    return this._http.put(strAddr, jsoned, {
+    return this._http.put<any>(strAddr, jsoned, {
       headers: headers
-    }).pipe( );
+    }).toPromise();
   }
 
   //---------------------DELETE 
 
-  deleteAvailability(id: number) {
+  DeleteAvailability(id: number): Promise<any> {
     let objAddr = this._sharingService.getAddress(this.servicePrefix + '/' + id);
     let headers = this._sharingService.createHeaders();
 
     return this._http.delete(objAddr, {
       headers: headers
-    }).pipe( );
+    }).toPromise();
   }
 
 

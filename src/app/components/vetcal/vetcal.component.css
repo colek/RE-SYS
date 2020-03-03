@@ -1,0 +1,6 @@
+.spinnerOverlay {
+    position: fixed;
+    align-self: center;
+    top: 20vh;
+    z-index: 10000;
+}

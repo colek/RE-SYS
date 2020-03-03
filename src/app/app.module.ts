@@ -25,6 +25,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { PrimeNGModule } from './primeng.module';
 import { VetcalComponent } from './components/vetcal/vetcal.component';
+import { CommonAlert } from './components/Modals/CommonAlert/CommonAlert.component';
+import { DateClicked } from './components/Modals/DateClicked/DateClicked.component';
 
 
 @NgModule({
@@ -40,7 +42,9 @@ import { VetcalComponent } from './components/vetcal/vetcal.component';
     CalendarCommondaysComponent,
     CalendarExtradaysComponent,
     PageNotFoundComponent,
-    VetcalComponent
+    VetcalComponent,
+    CommonAlert,
+    DateClicked
   ],
   imports: [
     BrowserModule,
@@ -52,6 +56,7 @@ import { VetcalComponent } from './components/vetcal/vetcal.component';
     HttpClientModule
   ],
   providers: [SharingService, CalendarService, EventService, ReasonService, AvailabilityService],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [CommonAlert, DateClicked]
 })
 export class AppModule { }

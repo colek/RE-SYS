@@ -13,12 +13,12 @@ export class EventService implements IService {
   constructor(private _http: HttpClient, private _sharingService: SharingService) { }
 
 
-  getEvents(calId: number):Observable<IEventResponse> {
+  async GetEvents(calId: number): Promise<IEventResponse> {
     let addr = this._sharingService.getAddress(this.servicePrefix +
       '/' + calId);
 
     let headers = this._sharingService.createHeaders();
-    return this._http.post<IEventResponse>(addr, this._sharingService.getCurrentStateJson(), { headers: headers }).pipe( );
+    return await this._http.post<IEventResponse>(addr, this._sharingService.getCurrentStateJson(), { headers: headers }).toPromise();
   }
 
   // getEvent(objId: string) {
@@ -39,37 +39,37 @@ export class EventService implements IService {
 
   // -----------------
 
-  addEvent(obj: ServerEvent, email:string) {
+  addEvent(obj: ServerEvent, email: string) {
     let headers = this._sharingService.createHeaders();
-    this._sharingService.currentState.event = obj;
-    this._sharingService.currentState.UserEmail = email;
-    return this._http.post<IEventResponse>(this._sharingService.getAddress(this.servicePrefix + "/" + this._sharingService.currentCalendar.id),
+    this._sharingService.CurrentState.event = obj;
+    this._sharingService.CurrentState.UserEmail = email;
+    return this._http.post<IEventResponse>(this._sharingService.getAddress(this.servicePrefix + "/" + this._sharingService.CurrentCalendar.id),
       this._sharingService.getCurrentStateJson(null, ActionType.AddEvent), {
-        headers: headers
-      }).pipe( );
+      headers: headers
+    }).pipe();
   }
 
 
 
 
   editEvent(obj: ServerEvent) {
-    let strAddr = this._sharingService.getAddress(this.servicePrefix + '/' + this._sharingService.currentCalendar.id);
+    let strAddr = this._sharingService.getAddress(this.servicePrefix + '/' + this._sharingService.CurrentCalendar.id);
     let headers = this._sharingService.createHeaders();
-    this._sharingService.currentState.event = obj;
+    this._sharingService.CurrentState.event = obj;
     return this._http.post<IEventResponse>(strAddr, this._sharingService.getCurrentStateJson(null, ActionType.EditEvent), {
       headers: headers
-    }).pipe( );
+    }).pipe();
   }
 
   //---------------------DELETE 
 
   deleteEvent(id: string) {
-    let objAddr = this._sharingService.getAddress(this.servicePrefix + '/' + this._sharingService.currentCalendar.id);
+    let objAddr = this._sharingService.getAddress(this.servicePrefix + '/' + this._sharingService.CurrentCalendar.id);
     let headers = this._sharingService.createHeaders();
-    this._sharingService.currentState.event = new ServerEvent();
-    this._sharingService.currentState.event.id = id;
+    this._sharingService.CurrentState.event = new ServerEvent();
+    this._sharingService.CurrentState.event.id = id;
     return this._http.post<IEventResponse>(objAddr, this._sharingService.getCurrentStateJson(null, ActionType.DeleteEvent), {
       headers: headers
-    }).pipe( );
+    }).pipe();
   }
 }
