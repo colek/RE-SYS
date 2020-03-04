@@ -6,7 +6,7 @@ import { SharingService } from '../../services/sharing-service.service';
 import { ReasonService } from '../../services/reason.service';
 import { EventService } from '../../services/event.service';
 import { AvailabilityService } from '../../services/availability.service';
-import { User, UserEvent, ObjectManager, MyEvent, Availability, MyBusinessHours, Reasons } from '../../classes/my-classes';
+import { User, UserEvent, ObjectManager, MyEvent, Availability, MyBusinessHours, Reason } from '../../classes/my-classes';
 import { IEventResponse, IAvailability } from '../../classes/my-interface';
 import { CalendarService } from '../../services/calendar-service.service';
 import { DateClicked } from '../Modals/DateClicked/DateClicked.component';
@@ -24,10 +24,9 @@ export class VetcalComponent implements OnInit {
   events: any;
   options: any;
   loggedUser: User;
-  userEvent: UserEvent;
   Availabilities: IAvailability[];
   AvailabilityExceptions: Availability[];
-  Reasons: Reasons[];
+  Reasons: Reason[];
   ProgressActive: boolean;
 
   constructor(
@@ -93,9 +92,6 @@ export class VetcalComponent implements OnInit {
     }
 
 
-    this.userEvent = new UserEvent();
-    this.userEvent.ChoosedDate = { "day": 12, "month": 5, "year": 2018 };
-    this.userEvent.ChoosedTime = { "hour": 10, "minute": 45, "second": 0 };
 
     this.ProgressActive = false;
   }
@@ -204,9 +200,8 @@ export class VetcalComponent implements OnInit {
       return false;
     }
 
-    this.Reasons = await this.GetReasons();
-    this.userEvent.ChoosedDate = { "day": event.date.getDate(), "month": event.date.getMonth() + 1, "year": event.date.getFullYear() };
-    this.userEvent.ChoosedTime = { "hour": event.date.getHours(), "minute": event.date.getMinutes(), "second": 0 };
+    this._sharingService.CurrentUserEvent.ChoosedDate = event.date;
+
     this._dialogService.open(DateClicked, {
       header: 'Zvolte podrobnosti',
       width: '70%'
@@ -220,13 +215,5 @@ export class VetcalComponent implements OnInit {
 
   }
 
-
-  async GetReasons() {
-    return await this._reasonService.GetReasons(this._sharingService.CurrentCalendar.id)
-      .catch((ex) => {
-        console.error("GetReasons Error: " + ex);
-        return null;
-      });
-  }
 
 }

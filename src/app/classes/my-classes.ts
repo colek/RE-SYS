@@ -1,4 +1,5 @@
 import { Component, Injectable } from '@angular/core'
+import { IAvailability, ICalendar, IReason } from './my-interface';
 // import { EventObject, Timespan, BusinessHours } from 'fullcalendar';
 // import { NgbTimeStruct, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 //import { Timestamp } from 'rxjs/operators/timestamp';
@@ -12,7 +13,7 @@ export class EventResponse {
 }
 
 // calendar
-export class Calendar {
+export class Calendar implements ICalendar {
     public id: number;
     public identification: string;
     public description: string;
@@ -22,10 +23,10 @@ export class Calendar {
     public name: string;
 
     public availability: Availability[];
-    public reasons: Reasons[];
+    public reasons: IReason[];
 }
 
-export class Availability {
+export class Availability implements IAvailability {
     public id: number;
     public calId: number;
     public standard: number;
@@ -38,7 +39,7 @@ export class Availability {
     public dateFromDate: ChoosedDate;
     public dateToDate: ChoosedDate;
 
-    public cal: Calendar;
+    public cal: ICalendar;
 
     public weekDayStr: string;
     // private _weekDay: number;
@@ -122,9 +123,8 @@ export class UserEvent {
     Identification: string;
     Email: string;
     Phone: string;
-    Reason: Reasons;
-    ChoosedDate: any; //NgbDateStruct;
-    ChoosedTime: any; // NgbTimeStruct;
+    Reason: Reason;
+    ChoosedDate: Date;
 }
 
 export class ServerEvents {
@@ -251,7 +251,7 @@ export class PetType {
 //     public calendar: Calendar;
 // }
 
-export class Reasons {
+export class Reason {
     public id: number;
     public calId: number;
     public name: string;

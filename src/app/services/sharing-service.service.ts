@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
-import { Calendar, CurrentState, ActionType } from '../classes/my-classes';
+import { Calendar, CurrentState, ActionType, UserEvent, Reason } from '../classes/my-classes';
 import { CalendarService } from './calendar-service.service';
 import 'rxjs/add/observable/throw';
 import { catchError } from 'rxjs/operators';
 import { map } from 'rxjs-compat/operator/map';
 import { ICalendar } from '../classes/my-interface';
+import { isNullOrUndefined } from 'util';
+import { ReasonService } from './reason.service';
 
 @Injectable()
 export class SharingService {
@@ -20,11 +22,17 @@ export class SharingService {
   public SelectedId: string;
   public CurrentState: CurrentState;
   public PreviousCalendar: Calendar;
+  public CurrentUserEvent: UserEvent;
+
+  public Reasons: Reason[];
 
   public ccal: Observable<Calendar>;
 
   constructor(private _http: HttpClient) {
     this.LoadDefaultCalendar();
+
+    this.CurrentUserEvent = new UserEvent();
+    this.CurrentUserEvent.ChoosedDate = new Date();
   }
 
   public setObject(obj: Object) {

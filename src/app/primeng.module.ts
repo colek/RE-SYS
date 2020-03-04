@@ -25,6 +25,7 @@ import { PanelModule } from 'primeng/panel';
 import { FullCalendarModule } from 'primeng/fullcalendar';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { CalendarModule } from 'primeng/calendar';
 
 
 @NgModule({
@@ -32,6 +33,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
         // DataViewModule,
         InputTextModule,
         DropdownModule,
+        CalendarModule,
         // MultiSelectModule,
         // KeyFilterModule,
         // MessageModule,

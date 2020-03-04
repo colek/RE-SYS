@@ -1,13 +1,13 @@
-import {  } from 'primeng/calendar/primeng-calendar';
+import { } from 'primeng/calendar/primeng-calendar';
 import { ChoosedDate, ActionType, ServerEvents, ServerEvent } from './my-classes';
 // import { Timestamp } from 'rxjs/operators/timestamp';
 
 // response
 export interface IEventResponse {
-    events: ServerEvents;
-    currentEvent: ServerEvent;
-    inError: boolean;
-    errorDescription: string;
+     events: ServerEvents;
+     currentEvent: ServerEvent;
+     inError: boolean;
+     errorDescription: string;
 }
 
 // calendar
@@ -21,7 +21,7 @@ export interface ICalendar {
      name: string;
 
      availability: IAvailability[];
-     reasons: IReasons[];
+     reasons: IReason[];
 }
 
 export interface IAvailability {
@@ -40,15 +40,15 @@ export interface IAvailability {
      cal: ICalendar;
 
      weekDayStr: string;
-    // private _weekDay: number;
+     // private _weekDay: number;
 
-    // get weekday(): number {
-    //     return this._weekDay;
-    // }
-    // set weekday(theBar: number) {
-    //     this._weekDay = theBar;
-    //     this.weekDayStr = this.getWeekDay();
-    // }
+     // get weekday(): number {
+     //     return this._weekDay;
+     // }
+     // set weekday(theBar: number) {
+     //     this._weekDay = theBar;
+     //     this.weekDayStr = this.getWeekDay();
+     // }
 
 }
 
@@ -75,34 +75,34 @@ export interface IServerEvent {
 }
 
 export interface IMyEvent {
-    start: string | Date;
-    [x: string]: any;
-    constraint?: any;//Timespan | BusinessHours;
-    end?: string | Date;
-    id?: any; // String/number
-    title: string;
-    allDay?: boolean;
-    url?: string;
-    interfaceName?: string | string[];
-    editable?: boolean;
-    startEditable?: boolean;
-    durationEditable?: boolean;
-    rendering?: string;
-    overlap?: boolean;
-    source?: EventSource;
-    color?: string;
-    backgroundColor?: string;
-    borderColor?: string;
-    textColor?: string;
+     start: string | Date;
+     [x: string]: any;
+     constraint?: any;//Timespan | BusinessHours;
+     end?: string | Date;
+     id?: any; // String/number
+     title: string;
+     allDay?: boolean;
+     url?: string;
+     interfaceName?: string | string[];
+     editable?: boolean;
+     startEditable?: boolean;
+     durationEditable?: boolean;
+     rendering?: string;
+     overlap?: boolean;
+     source?: EventSource;
+     color?: string;
+     backgroundColor?: string;
+     borderColor?: string;
+     textColor?: string;
 }
 
 export interface IUserEvent {
-    Identification: string;
-    Email: string;
-    Phone: string;
-    Reason: IReasons;
-    ChoosedDate: any;//NgbDateStruct;
-    ChoosedTime: any;//NgbTimeStruct;
+     Identification: string;
+     Email: string;
+     Phone: string;
+     Reason: IReason;
+     ChoosedDate: any;//NgbDateStruct;
+     ChoosedTime: any;//NgbTimeStruct;
 }
 
 export interface IServerEvents {
@@ -229,7 +229,7 @@ export interface IPetType {
 //      calendar: Calendar;
 // }
 
-export interface IReasons {
+export interface IReason {
      id: number;
      calId: number;
      name: string;
@@ -240,5 +240,5 @@ export interface IReasons {
 
 
 export interface IService {
-    servicePrefix: string;
+     servicePrefix: string;
 }

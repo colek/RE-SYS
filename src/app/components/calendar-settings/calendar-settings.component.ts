@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Reasons } from '../../classes/my-classes';
+import { Reason } from '../../classes/my-classes';
 import { SharingService } from '../../services/sharing-service.service';
 import { ReasonService } from '../../services/reason.service';
+import { isNullOrUndefined } from 'util';
 
 @Component({
   selector: 'calendar-settings',
@@ -13,7 +14,7 @@ export class CalendarSettingsComponent implements OnInit {
   public settingsOpen = true;
   public NewReason: string;
   public NewReasonDuration: number;
-  public Reason: Reasons[];
+  public Reasons: Reason[];
   public dataLoaded: boolean = false;
 
   constructor(
@@ -21,28 +22,26 @@ export class CalendarSettingsComponent implements OnInit {
     private _reasonService: ReasonService
   ) { }
 
-  ngOnInit() {
-    if (this._sharingService.CurrentCalendar !== null && this._sharingService.CurrentCalendar !== undefined) {
-      this.getReasons();
-    }
+  async ngOnInit() {
+    await this.GetReasons();
   }
 
   ngDoCheck() {
     //Called every time that the input properties of a component or a directive are checked. Use it to extend change detection by performing a custom check.
     //Add 'implements DoCheck' to the class.
-    if (!this.dataLoaded && (this._sharingService.CurrentCalendar !== this._sharingService.PreviousCalendar
-      || ((this._sharingService.CurrentCalendar !== null && this._sharingService.CurrentCalendar !== undefined)))) {
+    // if (!this.dataLoaded && (this._sharingService.CurrentCalendar !== this._sharingService.PreviousCalendar
+    //   || ((this._sharingService.CurrentCalendar !== null && this._sharingService.CurrentCalendar !== undefined)))) {
 
-      this.dataLoaded = true;
-      this._sharingService.PreviousCalendar = this._sharingService.CurrentCalendar;
+    //   this.dataLoaded = true;
+    //   this._sharingService.PreviousCalendar = this._sharingService.CurrentCalendar;
 
-      this.getReasons();
-    }
+    //   this.getReasons();
+    // }
   }
 
   addReason() {
-    let addRes: Reasons;
-    addRes = new Reasons();
+    let addRes: Reason;
+    addRes = new Reason();
     // addRes.calendar = this._sharingService.CurrentCalendar;
     addRes.calId = this._sharingService.CurrentCalendar.id
     addRes.name = this.NewReason;
@@ -56,12 +55,11 @@ export class CalendarSettingsComponent implements OnInit {
       });
   }
 
-  getReasons() {
-    this._reasonService.GetReasons(this._sharingService.CurrentCalendar.id)
-      .catch((ex) => {
-        console.error("GetReasons Error: " + ex);
-        return null;
-      });
+  async GetReasons() {
+    if (isNullOrUndefined(this._sharingService.Reasons)) {
+      this._sharingService.Reasons = await this._reasonService.GetReasons();
+    }
+    this.Reasons = this._sharingService.Reasons;
   }
 
   deleteReason(event) {
