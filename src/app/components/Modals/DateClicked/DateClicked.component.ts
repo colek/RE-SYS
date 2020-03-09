@@ -25,11 +25,12 @@ export class DateClicked implements OnInit {
 
     EventConfim() {
         console.log("Event confirmed");
+        this.ref.close(true);
     }
 
     CloseDialog() {
         console.log("Date dialog closed");
-        this.ref.close();
+        this.ref.close(false);
     }
 
     async GetReasons() {
@@ -37,6 +38,7 @@ export class DateClicked implements OnInit {
             this._sharingService.Reasons = await this._reasonService.GetReasons();
         }
         this.Reasons = this._sharingService.Reasons;
+        this._sharingService.CurrentUserEvent.Reason = this.Reasons[0];
     }
 
 

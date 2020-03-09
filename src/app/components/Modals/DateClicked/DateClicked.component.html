@@ -1,41 +1,52 @@
-<div class="modal-body">
-    <form>
-        <div class="form-group row">
-            <label for="inputIdentification" class="col-sm-2 col-form-label">Jméno</label>
-            <div class="col-sm-10">
+<form>
+    <div class="ui-g ui-fluid">
+
+        <div class="ui-g-12 ui-md-12">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon">Jméno</span>
                 <input type="text" pInputText [(ngModel)]="_sharingService.CurrentUserEvent.Identification" name="identification" id="inputIdentification" placeholder="Uveďte vaše jméno">
             </div>
         </div>
-        <div class="form-group row">
-            <label for="inputEmail" class="col-sm-2 col-form-label">E-mail</label>
-            <div class="col-sm-10">
-                <input type="email" pInputText class="form-control" [(ngModel)]="_sharingService.CurrentUserEvent.Email" name="email" id="inputEmail" placeholder="Uveďte platný e-mailový kontakt">
+
+        <div class="ui-g-12 ui-md-12">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon">E-mail</span>
+                <input type="email" pKeyFilter="email" pInputText class="form-control" [(ngModel)]="_sharingService.CurrentUserEvent.Email" name="email" id="inputEmail" placeholder="Uveďte platný e-mailový kontakt">
             </div>
         </div>
-        <div class="form-group row">
-            <label for="inputEmail" class="col-sm-2 col-form-label">Telefon</label>
-            <div class="col-sm-10">
-                <input type="tel" pInputText class="form-control" [(ngModel)]="_sharingService.CurrentUserEvent.Phone" name="email" id="inputPhone" placeholder="Uveďte platný telefonní kontakt">
+
+        <div class="ui-g-12 ui-md-12">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon">Telefon</span>
+                <input type="tel" pKeyFilter="pnum" pInputText class="form-control" [(ngModel)]="_sharingService.CurrentUserEvent.Phone" name="email" id="inputPhone" placeholder="Uveďte platný telefonní kontakt">
             </div>
         </div>
-        <div class="form-group row">
-            <label for="inputReason" class="col-sm-2 col-form-label">Důvod návštěvy</label>
-            <div class="col-sm-10">
+
+
+        <div class="ui-g-12 ui-md-12">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon">Důvod návštěvy</span>
                 <p-dropdown [options]="Reasons" [(ngModel)]="_sharingService.CurrentUserEvent.Reason" optionLabel="name" [filter]="true" [ngModelOptions]="{standalone: true}"></p-dropdown>
             </div>
         </div>
-    </form>
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label">Datum a čas</label>
-        <div class="col-sm-10">
-            <div class="input-group">
-                <p-calendar [(ngModel)]="_sharingService.CurrentUserEvent.ChoosedDate" showTime="true" hourFormat="24"></p-calendar>
+
+
+        <div class="ui-g-12 ui-md-12">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon">Datum a čas</span>
+                <p-calendar [(ngModel)]="_sharingService.CurrentUserEvent.ChoosedDate" showTime="true" hourFormat="24" [ngModelOptions]="{standalone: true}"></p-calendar>
             </div>
         </div>
+
+
+        <div class="ui-g-12 ui-md-6">
+            <p-button label="Zrušit" (onClick)="CloseDialog()"></p-button>
+        </div>
+
+        <div class="ui-g-12 ui-md-6">
+            <p-button label="Potvrdit" (onClick)="EventConfim()"></p-button>
+        </div>
+
+
     </div>
-</div>
-<div class="modal-footer">
-    <button type="button" #buttonClose class="btn btn-light" (click)="CloseDialog()">Zrušit</button>
-    <button type="button" class="btn btn-secondary" (click)="EventConfim()">Potvrdit</button>
-    <!-- <button type="button" #closeModal class="btn btn-secondary" data-dismiss="modal">Close</button> -->
-</div>
+</form>

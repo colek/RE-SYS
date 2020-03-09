@@ -10,12 +10,15 @@ import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 })
 export class CommonAlert implements OnInit {
 
+    Text: string;
+
     constructor(public ref: DynamicDialogRef, public config: DynamicDialogConfig) {
 
     }
 
     ngOnInit(): void {
         // throw new Error("Method not implemented.");
+        this.Text = this.config.data.message;
     }
 
 }

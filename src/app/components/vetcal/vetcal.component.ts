@@ -6,12 +6,13 @@ import { SharingService } from '../../services/sharing-service.service';
 import { ReasonService } from '../../services/reason.service';
 import { EventService } from '../../services/event.service';
 import { AvailabilityService } from '../../services/availability.service';
-import { User, UserEvent, ObjectManager, MyEvent, Availability, MyBusinessHours, Reason } from '../../classes/my-classes';
+import { User, UserEvent, ObjectManager, MyEvent, Availability, MyBusinessHours, Reason, ServerEvent, EventDateTime } from '../../classes/my-classes';
 import { IEventResponse, IAvailability } from '../../classes/my-interface';
 import { CalendarService } from '../../services/calendar-service.service';
 import { DateClicked } from '../Modals/DateClicked/DateClicked.component';
 import { CommonAlert } from '../Modals/CommonAlert/CommonAlert.component';
 import { DialogService } from 'primeng/dynamicdialog';
+import { isNullOrUndefined } from 'util';
 
 @Component({
   selector: 'vetcal',
@@ -41,6 +42,8 @@ export class VetcalComponent implements OnInit {
   async ngOnInit() {
     this.SetDefaultOptions();
     await this.InitCalendar();
+
+    setTimeout(() => { this.RefreshEvents() }, 6000);
   }
 
   SetDefaultOptions() {
@@ -79,12 +82,13 @@ export class VetcalComponent implements OnInit {
     this.loggedUser = new User();
     if (this._sharingService.CurrentCalendar == null) {
       this._sharingService.CurrentCalendar = await this.GetCalendar(1);
-      // add progress TODO
+
       this.events = await this.GetEvents();
-      // add progress TODO
+      if (this.events == null) return;
+
       let availData = await this.GetAvailabilities();
       this.Availabilities = ObjectManager.setExtraAvailData(this.Availabilities, availData);
-      // add progress TODO
+
       let altAvailData = await this.GetAltAvailabilities();
       this.AvailabilityExceptions = ObjectManager.setExtraAvailData(this.AvailabilityExceptions, altAvailData);
 
@@ -98,16 +102,8 @@ export class VetcalComponent implements OnInit {
 
   /** Get events from server */
   async GetEvents(): Promise<MyEvent[]> {
-    let data: IEventResponse = await this._eventService.GetEvents(this._sharingService.CurrentCalendar.id)
-      .catch(error => {
-        console.error("GetEvents Error: " + error);
-        return null;
-      });
-
-    if (data.inError) {
-      console.error("Cannot get events. " + data.errorDescription);
-    };
-
+    let data: IEventResponse = await this._eventService.GetEvents(this._sharingService.CurrentCalendar.id);
+    if (data == null) return null;
 
     // console.log('Aquired events = ' + this.events.length);
     return ObjectManager.SetServerEventsToEvents(data.events);
@@ -184,16 +180,14 @@ export class VetcalComponent implements OnInit {
     this.options = { ...this.options, businessHours: bhs };
   }
 
-  async DateClicked(event: any) {
+  DateClicked(event: any) {
     console.log("DateClicked || date: " + event.dateStr);
 
-    // let cDay = event.date;
-
-    // let zoneOffset = cDay.getTimezoneOffset() / 60;
-    // let compareDate = new Date(cDay);
-    // compareDate.setHours(cDay.getHours() + zoneOffset);
     if (!ObjectManager.checkChoosedDate(this.Availabilities, event.date, 15)) {
       this._dialogService.open(CommonAlert, {
+        data: {
+          message: "Ve zvoleném časce bychom se Vám nemohli věnovat"
+        },
         header: 'Zvolený den a čas nelze vybrat',
         width: '40%'
       });
@@ -202,17 +196,80 @@ export class VetcalComponent implements OnInit {
 
     this._sharingService.CurrentUserEvent.ChoosedDate = event.date;
 
-    this._dialogService.open(DateClicked, {
+    let ref = this._dialogService.open(DateClicked, {
       header: 'Zvolte podrobnosti',
-      width: '70%'
-    })
+      width: '30%'
+    });
+
+    let dialogClosed = ref.onClose
+      .subscribe((data) => {
+        if (data) this.WriteNewEvent();
+      });
+  }
+
+  async WriteNewEvent() {
+
+    let serverEvent = this.UserEventToServerEvent(this._sharingService.CurrentUserEvent);
+
+    let serverEvents = await this.AddNewEvent(serverEvent, this._sharingService.CurrentUserEvent.Email);
+    if (isNullOrUndefined(serverEvents) || isNullOrUndefined(serverEvents.events)) return;
+
+    this.events = ObjectManager.SetServerEventsToEvents(serverEvents.events);
+  }
 
 
-    // this._modalService.open(this.content, { size: "lg" });
+  UserEventToServerEvent(userEvent: UserEvent) {
+    let ev: ServerEvent = new ServerEvent();
 
-    // this.clickedTime = day.date;
+    ev.description = this._sharingService.CurrentUserEvent.Identification + "<br />" + this._sharingService.CurrentUserEvent.Email + "<br />" + this._sharingService.CurrentUserEvent.Phone + "<br />" + this._sharingService.CurrentUserEvent.Reason.name;
+    ev.start = new EventDateTime();
+    ev.start.dateTime = this._sharingService.CurrentUserEvent.ChoosedDate;
+    ev.end = new EventDateTime();
+    ev.end.dateTime = new Date(ev.start.dateTime);//.add(15, 'minutes').toDate();
+    ev.end.dateTime.setMinutes(ev.end.dateTime.getMinutes() + this._sharingService.CurrentUserEvent.Reason.orderDuration);
+    ev.summary = "Rezervovaný termín";
 
 
+    if (!ObjectManager.checkChoosedDate(this.Availabilities, ev.start.dateTime, this._sharingService.CurrentUserEvent.Reason.orderDuration)) {
+      // this._modalService.open(this.message, { size: "sm" });
+      this._dialogService.open(CommonAlert, {
+        data: {
+          message: "Ve zvoleném časce bychom se Vám nemohli věnovat"
+        },
+        header: 'Zvolený den a čas nelze vybrat',
+        width: '40%'
+      });
+      return null;
+    }
+
+    return ev;
+  }
+
+
+  async AddNewEvent(event: ServerEvent, email: string) {
+
+    let eventAdded = await this._eventService.AddEvent(event, email);
+    if (eventAdded.inError) {
+      this._dialogService.open(CommonAlert, {
+        data: {
+          message: "Ve zvoleném časce bychom se Vám nemohli věnovat"
+        },
+        header: 'Zvolený den a čas nelze vybrat',
+        width: '40%'
+      });
+
+      return null;
+    }
+    return eventAdded;
+  }
+
+  async RefreshEvents() {
+    this.ProgressActive = true;
+
+    this.events = await this.GetEvents();
+
+    this.ProgressActive = false;
+    setTimeout(() => { this.RefreshEvents() }, 6000);
   }
 
 

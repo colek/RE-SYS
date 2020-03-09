@@ -35,7 +35,7 @@ import { CalendarModule } from 'primeng/calendar';
         DropdownModule,
         CalendarModule,
         // MultiSelectModule,
-        // KeyFilterModule,
+        KeyFilterModule,
         // MessageModule,
         // MessagesModule,
         // InputMaskModule,
